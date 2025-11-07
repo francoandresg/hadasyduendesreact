@@ -1,0 +1,43 @@
+import PropTypes from 'prop-types';
+import { useState } from 'react';
+
+// material-ui
+import Grid from '@mui/material/Grid';
+
+// project-imports
+import FilePreview from './FilePreview';
+import FileShare from './ShareModal';
+import FileCard from 'components/cards/file-manager/FileCard';
+import { GRID_COMMON_SPACING } from 'config';
+
+// ==============================|| FILE MANAGER - CARDS ||============================== //
+
+export default function CardView({ files }) {
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const [previewDrawer, setPreviewDrawer] = useState(false);
+  const [shareModal, setShareModal] = useState(false);
+
+  return (
+    <>
+      <Grid container spacing={GRID_COMMON_SPACING}>
+        {files.map((file, index) => (
+          <Grid key={index} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <FileCard
+              {...file}
+              selected={selectedFile?.name === file.name}
+              onSelect={() => setSelectedFile(file)}
+              openDrawer={previewDrawer}
+              setOpenDrawer={setPreviewDrawer}
+              setOpenModal={setShareModal}
+            />
+          </Grid>
+        ))}
+      </Grid>
+      <FilePreview openDrawer={previewDrawer} setOpenDrawer={setPreviewDrawer} selectedFile={selectedFile} />
+      <FileShare setOpenModal={setShareModal} openModal={shareModal} />
+    </>
+  );
+}
+
+CardView.propTypes = { files: PropTypes.array };
