@@ -11,7 +11,6 @@ import ScrollTop from 'components/ScrollTop';
 import Customization from 'components/Customization';
 import Snackbar from 'components/@extended/Snackbar';
 import Notistack from 'components/third-party/Notistack';
-import Metrics from 'metrics';
 
 // auth-provider
 import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
@@ -38,7 +37,6 @@ export default function App() {
           </Locales>
         </RTLLayout>
       </ThemeCustomization>
-      <Metrics />
     </Box>
   );
 }

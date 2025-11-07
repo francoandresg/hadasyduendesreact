@@ -24,7 +24,7 @@ export default function Navigation() {
   const downLG = useMediaQuery((theme) => theme.breakpoints.down('lg'));
 
   const { menuOrientation } = useConfig();
-  const { menuLoading } = useGetMenu();
+  // const { menuLoading } = useGetMenu();
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
 
@@ -39,7 +39,7 @@ export default function Navigation() {
     );
 
     setMenuItems({ items: [...filteredMenu] });
-  }, [menuLoading]);
+  }, []);
 
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
 

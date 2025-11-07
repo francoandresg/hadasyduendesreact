@@ -16,7 +16,6 @@ import Footer from './Footer';
 import HorizontalBar from './Drawer/HorizontalBar';
 import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import Loader from 'components/Loader';
-import AddCustomer from 'sections/apps/customer/AddCustomer';
 
 import { handlerDrawerOpen, useGetMenuMaster } from 'api/menu';
 import { DRAWER_WIDTH, MenuOrientation } from 'config';
@@ -75,7 +74,6 @@ export default function MainLayout() {
             <Footer />
           </Container>
         </Box>
-        <AddCustomer />
       </Box>
     </AuthGuard>
   );

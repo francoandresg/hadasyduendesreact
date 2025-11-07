@@ -9,8 +9,8 @@ import Typography from '@mui/material/Typography';
 // project-imports
 import Logo from 'components/logo';
 import useAuth from 'hooks/useAuth';
-import AuthWrapper2 from 'sections/auth/AuthWrapper2';
-import AuthLogin from 'sections/auth/auth-forms/AuthLogin';
+import AuthWrapper2 from './sections/auth/AuthWrapper2';
+import AuthLogin from './sections/auth/auth-forms/AuthLogin';
 
 // ================================|| LOGIN ||================================ //
 

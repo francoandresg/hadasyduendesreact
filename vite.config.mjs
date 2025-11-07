@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
     server: {
       open: true,
       port: PORT,
-      host: true
+      host: true,
     },
     preview: {
       open: true,
@@ -25,9 +25,8 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@ant-design/icons': path.resolve(__dirname, 'node_modules/@ant-design/icons')
-        // Add more aliases as needed
       }
     },
-    plugins: [react(), jsconfigPaths()],
+    plugins: [react(), jsconfigPaths()]
   };
 });
