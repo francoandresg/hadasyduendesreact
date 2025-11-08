@@ -28,7 +28,7 @@ export default function App() {
                 <Box>
                   <Notistack>
                     <RouterProvider router={router} />
-                    <Customization />
+                    {/* <Customization /> */}
                     <Snackbar />
                   </Notistack>
                 </Box>
