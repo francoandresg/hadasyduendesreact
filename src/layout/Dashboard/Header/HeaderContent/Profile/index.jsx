@@ -31,6 +31,7 @@ import useAuth from 'hooks/useAuth';
 import avatar1 from 'assets/images/users/avatar-6.png';
 import { Setting2, Profile, Logout } from 'iconsax-reactjs';
 
+
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -102,6 +103,13 @@ export default function ProfilePage() {
     setValue(newValue);
   };
 
+   function getInitials(name) {
+    if (!name) return '';
+    const words = name.trim().split(' ');
+    const initials = words.length === 1 ? words[0][0] : words[0][0] + words[1][0];
+    return initials.toUpperCase();
+  }
+
   return (
     <Box sx={{ flexShrink: 0, ml: 0.75 }}>
       <ButtonBase
@@ -120,7 +128,7 @@ export default function ProfilePage() {
         aria-haspopup="true"
         onClick={handleToggle}
       >
-        <Avatar alt="profile user" src={avatar1} />
+        <Avatar type="combined">{getInitials(user?.nameuser)}</Avatar>
       </ButtonBase>
       <Popper
         placement="bottom-end"
@@ -149,21 +157,14 @@ export default function ProfilePage() {
                     <Grid container sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                       <Grid>
                         <Stack direction="row" sx={{ gap: 1.25, alignItems: 'center' }}>
-                          <Avatar alt="profile user" src={avatar1} />
+                          <Avatar type="combined">{getInitials(user?.nameuser)}</Avatar>
                           <Stack>
-                            <Typography variant="subtitle1">{user?.name}</Typography>
+                            <Typography variant="subtitle1">{user?.nameuser}</Typography>
                             <Typography variant="body2" color="secondary">
-                              UI/UX Designer
+                              {user?.email}
                             </Typography>
                           </Stack>
                         </Stack>
-                      </Grid>
-                      <Grid>
-                        <Tooltip title="Logout">
-                          <IconButton size="large" color="error" sx={{ p: 1 }} onClick={handleLogout}>
-                            <Logout variant="Bulk" />
-                          </IconButton>
-                        </Tooltip>
                       </Grid>
                     </Grid>
                   </CardContent>
