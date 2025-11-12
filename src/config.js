@@ -68,9 +68,9 @@ const config = {
   menuOrientation: MenuOrientation.VERTICAL,
   menuCaption: true,
   miniDrawer: false,
-  container: true,
+  container: false,
   mode: ThemeMode.DARK,
-  presetColor: 'default',
+  presetColor: 'theme8',
   themeDirection: ThemeDirection.LTR,
   themeContrast: false
 };
