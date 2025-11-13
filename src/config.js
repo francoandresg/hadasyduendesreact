@@ -70,7 +70,7 @@ const config = {
   miniDrawer: false,
   container: true,
   mode: ThemeMode.DARK,
-  presetColor: 'default',
+  presetColor: 'theme8',
   themeDirection: ThemeDirection.LTR,
   themeContrast: false
 };
