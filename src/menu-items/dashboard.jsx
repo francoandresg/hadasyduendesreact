@@ -1,7 +1,7 @@
 // assets
-import { HouseIcon } from '@phosphor-icons/react';
+import { Home } from "iconsax-reactjs";
 
-const icons = { house: HouseIcon };
+const icons = { house: Home };
 
 const dashboard = {
   id: 'group-dashboard',

@@ -40,7 +40,7 @@ export default function NavItem({ item, level, isParents = false, setSelectedID 
   const Icon = item.icon;
   const itemIcon = item.icon ? (
     <Icon
-      weight={'duotone'}
+      variant="Bulk"
       size={drawerOpen ? 20 : 22}
       style={{ ...(menuOrientation === MenuOrientation.HORIZONTAL && isParents && { fontSize: 20, stroke: '1.5' }) }}
     />
