@@ -1,35 +1,35 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, InputLabel, Stack, Divider } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Grid,
+  InputLabel,
+  Stack,
+  Divider,
+  Autocomplete,
+  TextField
+} from '@mui/material';
 import DateTimeRangePicker from '../date/datetimerangepicker';
 import dayjs from 'dayjs';
 
-export default function ModalAddAppointment({ open, onClose, selectedDate, onSave }) {
+export default function ModalAddAppointment({ open, onClose, selectedDate, onSave, boxes }) {
   const [appointment, setAppointment] = useState({});
   const [loading, setLoading] = useState(false);
 
   const formatLocal = (fecha) => {
-    if (!fecha) {
-      return null;
-    }
+    if (!fecha) return null;
 
-    const date = new Date(fecha);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    const d = new Date(fecha);
+    return dayjs(d).format('YYYY-MM-DDTHH:mm:ss');
   };
 
   useEffect(() => {
     setAppointment({
       dateAppointment: selectedDate
-        ? {
-            date: dayjs(selectedDate),
-            start: null,
-            end: null
-          }
+        ? { date: dayjs(selectedDate), start: null, end: null }
         : null,
       role: null,
       professional: null,
@@ -40,6 +40,7 @@ export default function ModalAddAppointment({ open, onClose, selectedDate, onSav
       observation: null,
       errores: {}
     });
+
     setLoading(false);
   }, [open]);
 
@@ -47,10 +48,7 @@ export default function ModalAddAppointment({ open, onClose, selectedDate, onSav
     setAppointment((prev) => ({
       ...prev,
       [field]: val,
-      errores: {
-        ...prev.errores,
-        [field]: false
-      }
+      errores: { ...prev.errores, [field]: false }
     }));
   };
 
@@ -69,10 +67,12 @@ export default function ModalAddAppointment({ open, onClose, selectedDate, onSav
     >
       <DialogTitle>Nueva cita</DialogTitle>
       <Divider />
+
       <DialogContent>
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
+          
           {/* Fecha Cita */}
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} size={{ xs: 12, md: 4 }}>
             <Stack spacing={1}>
               <InputLabel>Fecha Cita</InputLabel>
               <DateTimeRangePicker
@@ -81,9 +81,36 @@ export default function ModalAddAppointment({ open, onClose, selectedDate, onSav
               />
             </Stack>
           </Grid>
+
+          {/* Box */}
+          <Grid item xs={12} size={{ xs: 12, md: 4 }}>
+            <Stack spacing={1}>
+              <InputLabel>Box</InputLabel>
+              <Autocomplete
+                value={appointment.box || null}
+                onChange={(_, newValue) => handleAppointmentChange('box', newValue)}
+                options={boxes || []}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        height: 40
+                      }
+                    }}
+                  />
+                )}
+              />
+            </Stack>
+          </Grid>
+
         </Grid>
       </DialogContent>
+
       <Divider />
+
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
         <Button onClick={onSave} variant="contained">

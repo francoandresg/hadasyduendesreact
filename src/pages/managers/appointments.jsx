@@ -24,12 +24,17 @@ import ModalAddApointment from '../../components/modal/ModalAddAppointment';
 // Utils
 import dayjs from 'dayjs';
 
+// Api
+import { getSelectorBoxes } from '../../api/managers/appointments';
+
 export default function WidgetAppointments() {
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const calendarRef = useRef(null);
 
+  const [boxes, setBoxes] = useState([]);
   const [date, setDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState();
+  const [loading, setLoading] = useState(true);
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [openNewEventModal, setOpenNewEventModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -43,6 +48,14 @@ export default function WidgetAppointments() {
       setCalendarView(newView);
     }
   }, [matchDownSM]);
+
+  useEffect(() => {
+    getSelectorBoxes().then((res) => {
+      if (res.success) {
+        setBoxes(res.data);
+      }
+    });
+  }, []);
 
   const handleDateToday = () => {
     const calendarApi = calendarRef.current.getApi();
@@ -74,7 +87,6 @@ export default function WidgetAppointments() {
     // Lógica de vista detalle si la deseas usar
   };
 
-  // 🟢 Botón "Agregar cita"
   const openModalNewAppointment = (arg) => {
     const hoy = dayjs().startOf('day');
     const fechaClick = dayjs(arg.date).startOf('day');
@@ -83,7 +95,7 @@ export default function WidgetAppointments() {
       return;
     }
 
-    setSelectedDate(arg.date ?? new Date());
+    setSelectedDate(arg.date ?? '');
     setOpenNewEventModal(true);
   };
 
@@ -94,10 +106,10 @@ export default function WidgetAppointments() {
 
   return (
     <>
-      {/* Modal Agregar Cita */}
       <ModalAddApointment
         open={openNewEventModal}
         onClose={() => setOpenNewEventModal(false)}
+        boxes={boxes}
         selectedDate={selectedDate}
         onSave={handleSaveEvent}
       />
