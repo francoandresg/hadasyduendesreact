@@ -2,13 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 
 // Hooks
 import useMediaQuery from '@mui/material/useMediaQuery';
-import useAuth from 'hooks/useAuth';
 
 // Material UI
-import { Grid, Card, CardContent } from '@mui/material';
-
-// Icons
-import { UserIcon, PhoneIcon, BriefcaseIcon, MagnifyingGlassIcon, TrashIcon } from '@phosphor-icons/react';
+import { Card, CardContent, Fab } from '@mui/material';
+import { Add } from 'iconsax-reactjs';
 
 // FullCalendar
 import FullCalendar from '@fullcalendar/react';
@@ -16,17 +13,15 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import timelinePlugin from '@fullcalendar/timeline';
-import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
+import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
 
 // Components
-import SimpleBar from 'components/third-party/SimpleBar';
 import CalendarStyled from '../../sections/apps/calendar/CalendarStyled';
 import Toolbar from '../../sections/apps/calendar/toolbar';
+import ModalAddApointment from '../../components/modal/ModalAddAppointment';
 
-// Toast
-import { openSnackbar } from 'utils/snackbar';
-
+// Utils
 import dayjs from 'dayjs';
 
 export default function WidgetAppointments() {
@@ -36,6 +31,8 @@ export default function WidgetAppointments() {
   const [date, setDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState();
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const [openNewEventModal, setOpenNewEventModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     const calendarEl = calendarRef.current;
@@ -46,19 +43,6 @@ export default function WidgetAppointments() {
       setCalendarView(newView);
     }
   }, [matchDownSM]);
-
-  const formatDateTime = (dateTimeStr) => {
-    if (!dateTimeStr) return '';
-    const date = new Date(dateTimeStr);
-    let hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    if (hours > 12) hours -= 12;
-    if (hours === 0) hours = 12;
-    return `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${date.getFullYear()} ${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-  };
 
   const handleDateToday = () => {
     const calendarApi = calendarRef.current.getApi();
@@ -87,21 +71,37 @@ export default function WidgetAppointments() {
   const handleEventClick = async (event) => {
     event.setExtendedProp('loading', true);
     calendarRef.current.getApi().refetchEvents();
+    // Lógica de vista detalle si la deseas usar
+  };
 
-    // try {
-    //   const response = await ServiceOrderDetailList(event.id, event.start);
-    //   event.setExtendedProp('loading', false);
-    //   calendarRef.current.getApi().refetchEvents();
+  // 🟢 Botón "Agregar cita"
+  const openModalNewAppointment = (arg) => {
+    const hoy = dayjs().startOf('day');
+    const fechaClick = dayjs(arg.date).startOf('day');
 
-    //   setSelectedEvent({ detalle: response.detalle, infoEvent: event });
-    //   setViewModalOpen(true);
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    if (fechaClick.isBefore(hoy)) {
+      return;
+    }
+
+    setSelectedDate(arg.date ?? new Date());
+    setOpenNewEventModal(true);
+  };
+
+  const handleSaveEvent = () => {
+    console.log('Guardando cita en la fecha:', selectedDate);
+    setOpenNewEventModal(false);
   };
 
   return (
     <>
+      {/* Modal Agregar Cita */}
+      <ModalAddApointment
+        open={openNewEventModal}
+        onClose={() => setOpenNewEventModal(false)}
+        selectedDate={selectedDate}
+        onSave={handleSaveEvent}
+      />
+
       <Card elevation={0}>
         <CardContent>
           <CalendarStyled>
@@ -113,6 +113,7 @@ export default function WidgetAppointments() {
               onClickToday={handleDateToday}
               onChangeView={handleViewChange}
             />
+
             <FullCalendar
               locales={[esLocale]}
               weekends
@@ -127,21 +128,29 @@ export default function WidgetAppointments() {
               allDayMaintainDuration
               eventResizableFromStart
               droppable={true}
-              selectable={true}
-              eventAllow={(dropInfo) => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); // Ignorar hora
-                const dropDate = new Date(dropInfo.start);
-                dropDate.setHours(0, 0, 0, 0);
-                return dropDate >= today;
-              }}
+              selectable={false}
               height="900px"
               plugins={[listPlugin, dayGridPlugin, timelinePlugin, timeGridPlugin, interactionPlugin]}
               eventClick={(info) => handleEventClick(info.event)}
+              dateClick={openModalNewAppointment}
             />
           </CalendarStyled>
         </CardContent>
       </Card>
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={openModalNewAppointment}
+        size="medium"
+        style={{
+          position: 'fixed',
+          bottom: 32,
+          right: 32
+        }}
+      >
+        <Add />
+      </Fab>
     </>
   );
 }

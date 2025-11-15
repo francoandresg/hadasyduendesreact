@@ -167,11 +167,26 @@ export default function Navigation() {
           <CardContent
             sx={{
               p: 0,
-              pb: '0px !important',
+              pb: '0px !important'
             }}
           >
             <List component="nav">
-              <ListItemButton onClick={handleLogout}>
+              <ListItemButton
+                onClick={handleLogout}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: 'transparent'
+                  },
+                  '&:hover .MuiListItemText-primary': {
+                    color: 'primary.main'
+                  },
+                  '&:hover .MuiListItemIcon-root svg': {
+                    color: 'primary.main'
+                  },
+                  py: 0.5,
+                  pl: 0.5
+                }}
+              >
                 <ListItemIcon>
                   <Logout variant="Bulk" size={18} />
                 </ListItemIcon>

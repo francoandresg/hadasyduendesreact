@@ -68,11 +68,11 @@ export default function Toolbar({ date, view, onClickNext, onClickPrev, onClickT
     <Grid alignItems="center" container justifyContent="space-between" spacing={matchDownSM ? 1 : 3} sx={{ pb: 3 }}>
       <Grid item display={'flex'}>
         <IconButton variant="outlined" borderPosition="left" onClick={onClickPrev} size={matchDownSM ? 'small' : 'medium'}>
-          <ArrowLeft2 />
+          <ArrowLeft2 variant='Bulk' />
         </IconButton>
         <Box sx={{ marginRight: 1 }}>
           <IconButton variant="outlined" borderPosition="right" onClick={onClickNext} size={matchDownSM ? 'small' : 'medium'}>
-            <ArrowRight2 />
+            <ArrowRight2 variant='Bulk'/>
           </IconButton>
         </Box>
         <Button variant="outlined" onClick={onClickToday} size={matchDownSM ? 'small' : 'medium'}>
@@ -103,7 +103,7 @@ export default function Toolbar({ date, view, onClickNext, onClickPrev, onClickT
                   variant={viewOption.value === view ? 'contained' : 'outlined'}
                   onClick={() => onChangeView(viewOption.value)}
                 >
-                  <Icon variant={viewOption.value === view ? 'Bold' : 'Linear'} />
+                  <Icon variant='Bulk' />
                 </Button>
               </CustomTooltip>
             );
