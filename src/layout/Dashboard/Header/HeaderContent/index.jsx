@@ -40,8 +40,8 @@ export default function HeaderContent() {
       {/* <Notification /> */}
       {!downLG && <FullScreen />}
       {/* <Message /> */}
-      {!downLG && <Profile />}
-      {downLG && <MobileSection />}
+      {<Profile />}
+      {/* {downLG && <MobileSection />} */}
     </>
   );
 }

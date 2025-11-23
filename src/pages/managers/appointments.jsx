@@ -25,13 +25,15 @@ import ModalAddApointment from '../../components/modal/ModalAddAppointment';
 import dayjs from 'dayjs';
 
 // Api
-import { getSelectorBoxes } from '../../api/managers/appointments';
+import { getSelectorBoxes, getSelectorClients, getSelectorRoles } from '../../api/managers/appointments';
 
 export default function WidgetAppointments() {
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const calendarRef = useRef(null);
 
   const [boxes, setBoxes] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [date, setDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState();
   const [loading, setLoading] = useState(true);
@@ -53,6 +55,16 @@ export default function WidgetAppointments() {
     getSelectorBoxes().then((res) => {
       if (res.success) {
         setBoxes(res.data);
+      }
+    });
+    getSelectorClients().then((res) => {
+      if (res.success) {
+        setClients(res.data);
+      }
+    });
+    getSelectorRoles().then((res) => {
+      if (res.success) {
+        setRoles(res.data);
       }
     });
   }, []);
@@ -110,6 +122,8 @@ export default function WidgetAppointments() {
         open={openNewEventModal}
         onClose={() => setOpenNewEventModal(false)}
         boxes={boxes}
+        clients={clients}
+        roles={roles}
         selectedDate={selectedDate}
         onSave={handleSaveEvent}
       />

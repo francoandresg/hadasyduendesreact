@@ -1,11 +1,9 @@
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Grid } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Grid } from '@mui/material';
 
-function ModalEliminar({ open, onClose, onConfirm, fila, entity }) {
-  const message = `¿Estás seguro de que deseas eliminar ${entity}: ${fila}?`;
-
+const ConfirmDialog = ({ open, onClose, onConfirm, title, content, color }) => {
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <Grid
         container
         spacing={2}
@@ -14,24 +12,24 @@ function ModalEliminar({ open, onClose, onConfirm, fila, entity }) {
         sx={{ borderBottom: '1px solid rgba(158, 159, 160, 0.33);' }}
       >
         <Grid item>
-          <DialogTitle>Confirmar eliminación</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </Grid>
       </Grid>
       <DialogContent>
-        <DialogContentText>{message}</DialogContentText>
+        <Typography>{content}</Typography>
       </DialogContent>
       <Grid sx={{ borderTop: '1px solid rgba(158, 159, 160, 0.33);' }}>
         <DialogActions sx={{ padding: '15px' }}>
           <Button onClick={onClose} color="inherit">
             Cancelar
           </Button>
-          <Button onClick={onConfirm} variant="contained" color="error">
+          <Button onClick={onConfirm} color={color || 'primary'}>
             Confirmar
           </Button>
         </DialogActions>
       </Grid>
     </Dialog>
   );
-}
+};
 
-export default ModalEliminar;
+export default ConfirmDialog;

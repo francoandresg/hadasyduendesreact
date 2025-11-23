@@ -1,377 +1,314 @@
+// WidgetBoxes.jsx - Full English Refactor
+
 import { useEffect, useState, useMemo } from 'react';
 import ReactTable from '../../components/tabla/pagination/ReactTable';
-import ModalAgregar from '../../components/modal/ModalAgregar';
-import ModalEditar from '../../components/modal/ModalEditar';
-import ModalEliminar from '../../components/modal/ModalEliminar';
-import ModalEstado from '../../components/modal/ModalEstado';
-import { getAllBoxes, createBox, updateBox, deleteBox, updateEstado } from '../../api/maintainers/boxes';
-import { openSnackbar } from 'utils/snackbar';
+import ModalAdd from '../../components/modal/ModalAdd';
+import ModalEdit from '../../components/modal/ModalEdit';
+import ModalDelete from '../../components/modal/ModalDelete';
+import ModalState from '../../components/modal/ModalState';
+
 import { Switch } from '@mui/material';
+
+import { getAllBoxes, createBox, updateBox, deleteBox, updateEstado } from '../../api/maintainers/boxes';
+
+import { openSnackbar } from 'utils/snackbar';
 
 export default function WidgetBoxes() {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [loading, setLoading] = useState(true);
 
-  const [boxes, setTeams] = useState([]);
-  const [permisos, setPermisos] = useState([]);
+  const [boxes, setBoxes] = useState([]);
   const [columnDefs, setColumnDefs] = useState([]);
-  const [columnVisibility, setColumnVisibility] = useState({});
 
-  //Agregar
+  // Modals
   const [openModalAdd, setOpenModalAdd] = useState(false);
-
-  // Editar
-  const [teamSeleccionado, setTeamSeleccionado] = useState(null);
   const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
 
-  // Eliminar
-  const [teamAEliminar, setTeamAEliminar] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  // Selections
+  const [selectedBox, setSelectedBox] = useState(null);
+  const [boxToDelete, setBoxToDelete] = useState(null);
 
-  // Estado
-  const [teamEstado, setTeamEstado] = useState(null);
-  const [openModalEstado, setOpenModalEstado] = useState(false);
-  const [nuevoEstado, setNuevoEstado] = useState(null);
+  // State switch modal
+  const [boxStateObj, setBoxStateObj] = useState(null);
+  const [openStateModal, setOpenStateModal] = useState(false);
+  const [newState, setNewState] = useState(null);
 
+  // Window resize
   useEffect(() => {
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Fetch data
   useEffect(() => {
     let isMounted = true;
 
     const fetchData = async () => {
       try {
-        if (!project || !project.id) {
-          setLoading(false);
-          return;
-        }
+        const data = await getAllBoxes();
+        if (!isMounted) return;
 
-        const data = await getAllTeams(project.id);
-        setTeams(data.result.boxes);
-        setColumnDefs(data.result.columnas);
-        setPermisos(data.result.permisos);
+        setBoxes(data.data);
 
-        const visibilityMap = {};
-        data.result.columnas.forEach((col) => {
-        visibilityMap[col.accessorKey] = col.visible === 1;
-        });
-        setColumnVisibility(visibilityMap);
-        
+        setColumnDefs([
+          {
+            header: 'ID',
+            accessorKey: 'idBox',
+            type: 'number',
+            visible: 0,
+            id: true,
+            required: 0,
+          },
+          {
+            header: 'NOMBRE',
+            label: 'Nombre',
+            accessorKey: 'box',
+            type: 'text',
+            visible: 1,
+            required: 1,
+            id:false,
+            size: { xs: 12, md: 12 }
+          },
+          {
+            header: 'ESTADO',
+            accessorKey: 'state',
+            type: 'switch',
+            visible: 0,
+            required: 0,
+            id: false
+          }
+        ]);
+
         setLoading(false);
       } catch (error) {
-        console.error('Error al obtener box:', error);
+        console.error('Error fetching boxes:', error);
         if (isMounted) setLoading(false);
       }
     };
 
     fetchData();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => (isMounted = false);
   }, []);
 
+  // Prepare columns for ReactTable
   const columns = useMemo(() => {
-  return columnDefs.map((col) => {
+    return columnDefs.map((col) => {
       const baseColumn = {
-      header: col.header,
-      accessorKey: col.accessorKey,
-      type: col.type,
-      valueType: col.valueType,
-      valueName: col.valueName,
-      required: col.required || 0,
-      actions: col.actions || 0,
-      crear: col.crear || 0,
-      editar: col.editar || 0,
-      enableHiding: true,
-      visible: col.visible === 1
+        header: col.header,
+        accessorKey: col.accessorKey,
+        type: col.type,
+        required: col.required || 0,
+        actions: col.actions || 0,
+        enableHiding: true,
+        visible: col.visible === 1
       };
 
-      // Select
-      if (col.type === 'select') {
-      baseColumn.options = col.options;
-      }
+      if (col.type === 'select') baseColumn.options = col.options;
 
-      // Switch
-      if (col.accessorKey === 'estado') {
-        baseColumn.cell = (row) => {
-          const estado = row.row.original.estado === 1;
-          const handleChange = (event) => {
-            const nuevoValor = event.target.checked ? 1 : 0;
-            setTeamEstado(row.row.original);
-            setNuevoEstado(nuevoValor);
-            setOpenModalEstado(true);
+      // Switch rendering
+      if (col.type === 'switch') {
+        baseColumn.cell = ({ row }) => {
+          const boxObj = row.original;
+          const stateBool = boxObj.state === 1;
+
+          const handleChange = (e) => {
+            const newValue = e.target.checked ? 1 : 0;
+            setBoxStateObj(boxObj);
+            setNewState(newValue);
+            setOpenStateModal(true);
           };
 
-          return (
-            <Switch
-              checked={estado}
-              onChange={handleChange}
-              color="primary"
-              size="small"
-            />
-          );
+          return <Switch checked={stateBool} onChange={handleChange} color="primary" size="small" />;
         };
       }
 
       return baseColumn;
-  });
+    });
   }, [columnDefs]);
 
-  // Manejar visibilidad columnas
-  const visibleColumns = useMemo(() => {
-  return columns.filter((col) => columnVisibility[col.accessorKey] === true);
-  }, [columns, columnVisibility]);
+  // ------- ADD -------
+  const handleAdd = () => setOpenModalAdd(true);
+  const handleCloseModalAdd = () => setOpenModalAdd(false);
 
-  // Manejar clic en agregar
-  const handleAdd = () => {
-    setOpenModalAdd(true);
-  };
+  const handleAddSave = async (newData) => {
+    const response = await createBox(newData);
 
-  // Cerrar modal de agregar
-  const handleCloseModalAdd = () => {
-    setOpenModalAdd(false);
-  };
-
-  // Guardar cambios al agregar
-  const handleGuardarCambios = async (datosNuevos) => {
-    const response = await createTeam(datosNuevos);
-    
     if (response.success) {
-      setTeams((prev) => [response.team, ...prev]);
+      setBoxes((prev) => [response.newRow, ...prev]);
       setOpenModalAdd(false);
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: {
-          color: 'success',
-          variant: 'outlined',
-        },
-        close: true,
-        transition: 'SlideRight',
-        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-        autoHideDuration: 5000,
+        alert: { color: 'success', variant: 'outlined' },
+        close: true
       });
     } else {
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: {
-          color: 'error',
-          variant: 'outlined',
-        },
-        close: true,
-        transition: 'SlideRight',
-        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-        autoHideDuration: 5000,
+        alert: { color: 'error', variant: 'outlined' },
+        close: true
       });
     }
   };
 
-  // Manejar clic en editar
-  const handleEdit = (boxes) => {
-    setTeamSeleccionado(boxes);
+  // ------- EDIT -------
+  const handleEdit = (box) => {
+    setSelectedBox(box);
     setOpenModalEdit(true);
   };
 
-  // Cerrar modal de editar
   const handleCloseModalEdit = () => {
     setOpenModalEdit(false);
-    setTeamSeleccionado(null);
+    setSelectedBox(null);
   };
 
-  // Guardar cambios editados
-  const handleEditarCambios = async (datosEditados) => {
-    const response = await updateTeam(datosEditados);
+  const handleEditSave = async (editedData) => {
+    const response = await updateBox(editedData);
+
     if (response.success) {
-      setTeams((prev) => prev.map((t) => (t.idTeam === response.team.idTeam ? response.team : t)));
+      setBoxes((prev) => prev.map((b) => (b.idBox === response.updatedRow.idBox ? response.updatedRow : b)));
+
       setOpenModalEdit(false);
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: {
-          color: 'success',
-          variant: 'outlined'
-        },
-        close: true,
-        transition: 'SlideRight',
-        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-        autoHideDuration: 5000
+        alert: { color: 'success', variant: 'outlined' },
+        close: true
       });
     } else {
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: {
-          color: 'error',
-          variant: 'outlined'
-        },
-        close: true,
-        transition: 'SlideRight',
-        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-        autoHideDuration: 5000
+        alert: { color: 'error', variant: 'outlined' },
+        close: true
       });
     }
   };
 
-  // Manejar clic en eliminar
-  const handleDelete = (team) => {
-    setTeamAEliminar(team);
-    setOpenDialog(true);
+  // ------- DELETE -------
+  const handleDelete = (box) => {
+    setBoxToDelete(box);
+    setOpenModalDelete(true);
   };
 
-  // Confirmar eliminación
-  const confirmarEliminacion = async () => {
-    var response = await deleteTeam(teamAEliminar.idTeam);
+  const handleConfirmDelete = async () => {
+    const response = await deleteBox(boxToDelete.idBox);
+
     if (response.success) {
-      if (teamAEliminar) {
-        setTeams((prev) => prev.filter((t) => t.idTeam !== teamAEliminar.idTeam));
-      }
-      setOpenDialog(false);
-      setTeamAEliminar(null);
+      setBoxes((prev) => prev.filter((b) => b.idBox !== boxToDelete.idBox));
+
+      setOpenModalDelete(false);
+      setBoxToDelete(null);
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: {
-          color: 'success',
-          variant: 'outlined'
-        },
-        close: true,
-        transition: 'SlideRight',
-        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-        autoHideDuration: 5000
+        alert: { color: 'success', variant: 'outlined' }
       });
     } else {
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: {
-          color: 'error',
-          variant: 'outlined'
-        },
-        close: true,
-        transition: 'SlideRight',
-        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-        autoHideDuration: 5000
+        alert: { color: 'error', variant: 'outlined' }
       });
     }
   };
 
-  // Ícono
-  const handleEstado = (teamObj) => {
-    const nuevoValor = teamObj.estado === 1 ? 0 : 1;
-    setTeamEstado(teamObj);
-    setNuevoEstado(nuevoValor);
-    setOpenModalEstado(true);
-  };
-
-  // Cerrar modal
-  const handleCloseEstado = () => {
-    setOpenModalEstado(false);
+  // ------- CHANGE STATE -------
+  const handleCloseStateModal = () => {
+    setOpenStateModal(false);
     setTimeout(() => {
-      setTeamEstado(null);
-      setNuevoEstado(null);
+      setBoxStateObj(null);
+      setNewState(null);
     }, 300);
   };
 
-  // Confirmar cambio de estado (switch + ícono)
-  const handleConfirmEstado = async () => {
-    if (!teamEstado) return;
+  const handleConfirmState = async () => {
+    if (!boxStateObj) return;
+
     try {
-      const response = await updateEstado(teamEstado.idTeam, nuevoEstado);
+      const response = await updateEstado(boxStateObj.idBox, newState);
+
       if (response.success) {
-        setTeams((prev) =>
-          prev.map((t) =>
-            t.idTeam === teamEstado.idTeam ? { ...t, estado: nuevoEstado } : t
-          )
-        );
+        setBoxes((prev) => prev.map((b) => (b.idBox === boxStateObj.idBox ? { ...b, state: newState } : b)));
         openSnackbar({
           open: true,
           message: response.message,
           variant: 'alert',
-          alert: { color: 'success', variant: 'outlined' },
-          close: true,
-          transition: 'SlideRight',
-          anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-          autoHideDuration: 5000,
+          alert: { color: 'success', variant: 'outlined' }
         });
       } else {
         openSnackbar({
           open: true,
           message: response.message,
           variant: 'alert',
-          alert: { color: 'error', variant: 'outlined' },
-          close: true,
-          transition: 'SlideRight',
-          anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-          autoHideDuration: 5000,
+          alert: { color: 'error', variant: 'outlined' }
         });
       }
     } catch (error) {
-      console.error('Error al actualizar el estado:', error);
+      console.error('Error updating state:', error);
     } finally {
-      handleCloseEstado();
+      handleCloseStateModal();
     }
   };
 
   return (
     <>
       <ReactTable
-        columns={visibleColumns}
+        columns={columns}
         data={boxes}
-        columnVisibility={columnVisibility}
-        onColumnVisibilityChange={setColumnVisibility}
-        onAdd={permisos[0]?.crear === 1 ? handleAdd : undefined}
-        onEdit={permisos[0]?.editar === 1 ? handleEdit : undefined}
-        onDelete={permisos[0]?.eliminar === 1 ? handleDelete : undefined}
-        deleteMode="real" //Eliminar de verdad
+        onAdd={handleAdd}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
         height={windowHeight - 349}
-        rowsPadding={1.59}
         loading={loading}
       />
-      <ModalAgregar
+
+      <ModalAdd
         open={openModalAdd}
         onClose={handleCloseModalAdd}
-        onSave={handleGuardarCambios}
-        columns={columns}
-        entity={'team'}
-        entityConfirm={'el team'}
+        onSave={handleAddSave}
+        columns={columnDefs}
+        modalGrid="xs"
+        entity="box"
+        entityConfirm="el box"
       />
-      <ModalEditar
+
+      <ModalEdit
         open={openModalEdit}
         onClose={handleCloseModalEdit}
-        data={teamSeleccionado}
-        onSave={handleEditarCambios}
-        columns={columns}
-        entity={'team'}
-        entityConfirm={'el team'}
+        data={selectedBox}
+        onSave={handleEditSave}
+        columns={columnDefs}
+        modalGrid="xs"
+        entity="box"
+        entityConfirm="el box"
       />
-      <ModalEliminar
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        onConfirm={confirmarEliminacion}
-        deleteMode="real" // Elimina de verdad
-        fila={teamAEliminar?.team}
-        entity={'el team'}
+
+      <ModalDelete
+        open={openModalDelete}
+        onClose={() => setOpenModalDelete(false)}
+        onConfirm={handleConfirmDelete}
+        fila={boxToDelete?.box}
+        entity="el box"
       />
-      <ModalEstado
-        open={openModalEstado}
-        onClose={handleCloseEstado}
-        onConfirm={handleConfirmEstado}
-        fila={teamEstado?.team}
-        entity="el team"
-        estado={teamEstado?.estado}
-        nuevoEstado={nuevoEstado}
+
+      <ModalState
+        open={openStateModal}
+        onClose={handleCloseStateModal}
+        onConfirm={handleConfirmState}
+        fila={boxStateObj?.box}
+        entity="el box"
+        state={boxStateObj?.state}
+        newState={newState}
       />
     </>
   );

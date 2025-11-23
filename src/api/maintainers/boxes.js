@@ -33,7 +33,15 @@ export const updateBox = async (box) => {
 
 export const deleteBox = async (idBox) => {
   try {
-    const response = await axios.delete(`/maintainers/boxes/${idBox}`);
+    const response = await axios.post(
+      `/maintainers/boxes/`,
+      { idBox },
+      {
+        params: {
+          delete: true
+        }
+      }
+    );
     return response.data;
   } catch (error) {
     const errorMessage = error?.message || 'Error inesperado al eliminar el team.';
@@ -44,12 +52,21 @@ export const deleteBox = async (idBox) => {
   }
 };
 
-export const updateEstado = async (idBox, estado) => {
+export const updateEstado = async (idBox, state) => {
   try {
-    const response = await axios.post('/maintainers/boxes/estado', {idBox, estado});
+    const response = await axios.put(
+      '/maintainers/boxes/',
+      { idBox, state },
+      {
+        params: {
+          state: true
+        }
+      }
+    );
+
     return response.data;
   } catch (error) {
-    const errorMessage = error?.message || 'Error inesperado al actualizar el estado del box.';
+    const errorMessage = error?.response?.data?.message || error?.message || 'Error inesperado al actualizar el estado del box.';
     return {
       success: false,
       message: errorMessage

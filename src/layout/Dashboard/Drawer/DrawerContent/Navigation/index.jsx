@@ -70,6 +70,14 @@ export default function Navigation() {
     }
   };
 
+  const getInitials = (fullName) => {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    const first = parts[0]?.[0] || '';
+    const last = parts[1]?.[0] || '';
+    return (first + last).toUpperCase();
+  };
+
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
 
   const lastItem = isHorizontal ? HORIZONTAL_MAX_ITEM : null;
@@ -133,69 +141,73 @@ export default function Navigation() {
         alignItems: 'center'
       }}
     >
-      <Card
-        elevation={0}
-        sx={{
-          m: 1.6,
-          px: 2,
-          borderRadius: 1.6,
-          border: (theme) => `1px solid ${theme.palette.divider}`
-        }}
-      >
-        <CardHeader
-          sx={{
-            py: 2,
-            '& .MuiCardHeader-action': {
-              alignSelf: 'center'
-            }
-          }}
-          title={
-            <Stack>
-              <Typography>{user?.nameuser}</Typography>
-              <Typography variant="body2" fontWeight="light">
-                {user?.profile}
-              </Typography>
-            </Stack>
-          }
-          action={
-            <IconButton onClick={() => setOpenMenu(openMenu === 1 ? 0 : 1)}>
-              <Sort />
-            </IconButton>
-          }
-        />
-        <Collapse in={openMenu === 1} timeout="auto" unmountOnExit>
-          <CardContent
+      {drawerOpen && (
+        <>
+          <Card
+            elevation={0}
             sx={{
-              p: 0,
-              pb: '0px !important'
+              m: 1.6,
+              px: 2,
+              borderRadius: 1.6,
+              border: (theme) => `1px solid ${theme.palette.divider}`
             }}
           >
-            <List component="nav">
-              <ListItemButton
-                onClick={handleLogout}
+            <CardHeader
+              sx={{
+                py: 2,
+                '& .MuiCardHeader-action': {
+                  alignSelf: 'center'
+                }
+              }}
+              title={
+                <Stack>
+                  <Typography>{user?.nameuser}</Typography>
+                  <Typography variant="body2" fontWeight="light">
+                    {user?.profile}
+                  </Typography>
+                </Stack>
+              }
+              action={
+                <IconButton onClick={() => setOpenMenu(openMenu === 1 ? 0 : 1)}>
+                  <Sort />
+                </IconButton>
+              }
+            />
+            <Collapse in={openMenu === 1} timeout="auto" unmountOnExit>
+              <CardContent
                 sx={{
-                  '&:hover': {
-                    backgroundColor: 'transparent'
-                  },
-                  '&:hover .MuiListItemText-primary': {
-                    color: 'primary.main'
-                  },
-                  '&:hover .MuiListItemIcon-root svg': {
-                    color: 'primary.main'
-                  },
-                  py: 0.5,
-                  pl: 0.5
+                  p: 0,
+                  pb: '0px !important'
                 }}
               >
-                <ListItemIcon>
-                  <Logout variant="Bulk" size={18} />
-                </ListItemIcon>
-                <ListItemText primary="Cerrar Sesión" />
-              </ListItemButton>
-            </List>
-          </CardContent>
-        </Collapse>
-      </Card>
+                <List component="nav">
+                  <ListItemButton
+                    onClick={handleLogout}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'transparent'
+                      },
+                      '&:hover .MuiListItemText-primary': {
+                        color: 'primary.main'
+                      },
+                      '&:hover .MuiListItemIcon-root svg': {
+                        color: 'primary.main'
+                      },
+                      py: 0.5,
+                      pl: 0.5
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Logout variant="Bulk" size={18} />
+                    </ListItemIcon>
+                    <ListItemText primary="Cerrar Sesión" />
+                  </ListItemButton>
+                </List>
+              </CardContent>
+            </Collapse>
+          </Card>
+        </>
+      )}
       {navGroups}
     </Box>
   );

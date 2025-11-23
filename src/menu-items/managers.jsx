@@ -22,13 +22,6 @@ const managers = {
       url: '/managers/appointments',
       icon: icons.Calendar
     },
-    {
-      id: 'material-delivery',
-      title: 'Material Entregado',
-      type: 'item',
-      url: '/managers/material-delivery',
-      icon: icons.BoxAdd
-    }
   ]
 };
 

@@ -50,7 +50,7 @@ export default function DateTimeRangePicker({ value, onChange, error = false, he
         <TextField
           fullWidth
           readOnly
-          sx={{ '& .MuiInputBase-root': { height: 40 } }}
+          sx={{ '& .MuiInputBase-root': { height: 41 } }}
           value={getInputValue()}
           onClick={() => {
             if (date && !start && !end) {
