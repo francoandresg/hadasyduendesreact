@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Grid } from '@mui/material';
 
-function ModalEstado({ open, onClose, onConfirm, fila, entity, estado }) {
+function ModalState({ open, onClose, onConfirm, fila, entity, estado }) {
   // Construir mensaje y título dinámicos según el estado
   const isActivar = estado === 0 || estado === 2;  // 0 o 2 = desactivado → próxima acción = activar
   const actionText = isActivar ? 'activar' : 'desactivar';
@@ -39,4 +39,4 @@ function ModalEstado({ open, onClose, onConfirm, fila, entity, estado }) {
   );
 }
 
-export default ModalEstado;
+export default ModalState;
