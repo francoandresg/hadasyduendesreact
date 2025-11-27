@@ -33,14 +33,10 @@ export const updateBox = async (box) => {
 
 export const deleteBox = async (idBox) => {
   try {
-    const response = await axios.post(
+    const response = await axios.delete(
       `/maintainers/boxes/`,
-      { idBox },
-      {
-        params: {
-          delete: true
-        }
-      }
+      {},
+      { params: { idBox } }
     );
     return response.data;
   } catch (error) {
