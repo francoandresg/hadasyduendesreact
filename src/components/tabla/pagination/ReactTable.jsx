@@ -154,27 +154,12 @@ function ReactTable({
     globalFilterFn: globalStrictFilter
   });
 
-  const headers = useMemo(
-    () =>
-      table.getAllColumns().map((col) => ({
-        label: typeof col.columnDef.header === 'string' ? col.columnDef.header : '#',
-        key: col.columnDef.accessorKey || col.id
-      })),
-    [table]
-  );
+  const headers = table.getAllColumns().map((col) => ({
+    label: typeof col.columnDef.header === 'string' ? col.columnDef.header : '#',
+    key: col.columnDef.accessorKey || col.id
+  }));
 
   const pageCount = table.getPageCount();
-
-  // ---------------------------
-  // HANDLERS
-  // ---------------------------
-  const handleExport = useCallback(() => {
-    exportToExcel(
-      table.getFilteredRowModel().rows.map((d) => d.original),
-      headers,
-      'datos-exportados.xlsx'
-    );
-  }, [table, headers]);
 
   const handlePageSizeChange = useCallback((e) => table.setPageSize(Number(e.target.value)), [table]);
 
@@ -199,7 +184,35 @@ function ReactTable({
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="space-between" sx={{ px: 2, py: 1 }}>
           <Stack direction="row" spacing={1}>
             {onExport && (
-              <Button variant="contained" color="success" onClick={handleExport} sx={{ width: 40, height: 40, p: 0, minWidth: 'auto' }}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => {
+                  // Clonamos los datos para no modificar el original
+                  const exportData = table.getFilteredRowModel().rows.map((d) => {
+                    const row = { ...d.original };
+
+                    // Transformar 'state' si existe
+                    if ('state' in row) {
+                      row.state = row.state === 1 ? 'Activado' : 'Desactivado';
+                    }
+
+                    // Eliminar columna de acciones si existe
+                    if ('acciones' in row) {
+                      delete row.acciones;
+                    }
+
+                    return row;
+                  });
+
+                  exportToExcel(
+                    exportData,
+                    headers.filter((h) => h.key !== 'acciones'),
+                    'datos-exportados.xlsx'
+                  );
+                }}
+                sx={{ width: 40, height: 40, p: 0, minWidth: 'auto' }}
+              >
                 <ExportIcon weight="regular" />
               </Button>
             )}

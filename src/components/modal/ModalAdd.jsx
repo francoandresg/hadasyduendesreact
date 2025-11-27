@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { openSnackbar } from 'utils/snackbar';
 import ConfirmDialog from '../dialog/ConfirmDialog';
+import DatePicker from '../date/datepicker';
 
 const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, modalGrid = 'md' }) => {
   const [form, setForm] = useState({});
@@ -59,7 +60,7 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
     const newErrors = {};
 
     columns.forEach(({ accessorKey, type, required, visible }) => {
-      if (visible == 0) return;
+      if (visible == 0 && required == 0) return;
 
       const value = form[accessorKey];
 
@@ -194,16 +195,12 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
             // ---------------- DATE ----------------
             case 'date':
               return (
-                <TextField
-                  label={label}
-                  name={accessorKey}
-                  type="date"
-                  value={fieldValue}
-                  onChange={handleChange}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
+                <DatePicker
+                  value={fieldValue || null}
+                  onChange={(v) => handleChange({ target: { name: accessorKey, value: v, type: 'text' } })}
                   error={!!errors[accessorKey]}
                   helperText={errors[accessorKey]}
+                  label={label}
                 />
               );
 

@@ -1,5 +1,3 @@
-// WidgetBoxes.jsx - Full English Refactor
-
 import { useEffect, useState, useMemo } from 'react';
 import ReactTable from '../../components/tabla/pagination/ReactTable';
 import ModalAdd from '../../components/modal/ModalAdd';
@@ -143,6 +141,7 @@ export default function WidgetBoxes() {
         message: response.message,
         variant: 'alert',
         alert: { color: 'success', variant: 'outlined' },
+        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
       });
     } else {
@@ -151,6 +150,7 @@ export default function WidgetBoxes() {
         message: response.message,
         variant: 'alert',
         alert: { color: 'error', variant: 'outlined' },
+        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
       });
     }
@@ -179,6 +179,7 @@ export default function WidgetBoxes() {
         message: response.message,
         variant: 'alert',
         alert: { color: 'success', variant: 'outlined' },
+        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
       });
     } else {
@@ -187,6 +188,7 @@ export default function WidgetBoxes() {
         message: response.message,
         variant: 'alert',
         alert: { color: 'error', variant: 'outlined' },
+        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
       });
     }
@@ -210,14 +212,18 @@ export default function WidgetBoxes() {
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: { color: 'success', variant: 'outlined' }
+        alert: { color: 'success', variant: 'outlined' },
+        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+        close: true
       });
     } else {
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
-        alert: { color: 'error', variant: 'outlined' }
+        alert: { color: 'error', variant: 'outlined' },
+        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+        close: true
       });
     }
   };
@@ -243,14 +249,18 @@ export default function WidgetBoxes() {
           open: true,
           message: response.message,
           variant: 'alert',
-          alert: { color: 'success', variant: 'outlined' }
+          alert: { color: 'success', variant: 'outlined' },
+          anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+          close: true
         });
       } else {
         openSnackbar({
           open: true,
           message: response.message,
           variant: 'alert',
-          alert: { color: 'error', variant: 'outlined' }
+          alert: { color: 'error', variant: 'outlined' },
+          anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+          close: true
         });
       }
     } catch (error) {
