@@ -8,7 +8,6 @@ const WidgetDashboard = Loadable(lazy(() => import('pages/dashboard')));
 
 // render - managers
 const WidgetApointments = Loadable(lazy(() => import('pages/managers/appointments')));
-const WidgetMaterialDelivery = Loadable(lazy(() => import('pages/managers/material-delivery')));
 
 // render - maintainers
 const WidgetBoxes = Loadable(lazy(() => import('pages/maintainers/boxes')));
@@ -38,10 +37,6 @@ const MainRoutes = {
             {
               path: 'appointments',
               element: <WidgetApointments />
-            },
-            {
-              path: 'material-delivery',
-              element: <WidgetMaterialDelivery />
             }
           ]
         },

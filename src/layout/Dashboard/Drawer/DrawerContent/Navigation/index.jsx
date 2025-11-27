@@ -5,6 +5,19 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Stack,
+  IconButton,
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
+} from '@mui/material';
+import { Sort, Logout } from 'iconsax-reactjs';
 
 // project-imports
 import NavGroup from './NavGroup';
@@ -14,6 +27,9 @@ import { MenuOrientation, HORIZONTAL_MAX_ITEM } from 'config';
 import useConfig from 'hooks/useConfig';
 import menuItem from 'menu-items';
 
+import useAuth from 'hooks/useAuth';
+import { useNavigate } from 'react-router';
+
 function isFound(arr, str) {
   return arr.items.some((element) => element.id === str);
 }
@@ -22,7 +38,7 @@ function isFound(arr, str) {
 
 export default function Navigation() {
   const downLG = useMediaQuery((theme) => theme.breakpoints.down('lg'));
-
+  const { logout, user } = useAuth();
   const { menuOrientation } = useConfig();
   // const { menuLoading } = useGetMenu();
   const { menuMaster } = useGetMenuMaster();
@@ -32,14 +48,35 @@ export default function Navigation() {
   const [selectedItems, setSelectedItems] = useState('');
   const [selectedLevel, setSelectedLevel] = useState(0);
   const [menuItems, setMenuItems] = useState({ items: [] });
+  const [openMenu, setOpenMenu] = useState(null);
+  const navigate = useNavigate();
 
   useLayoutEffect(() => {
-    const filteredMenu = menuItem.items.filter(
-      (m) => m.id !== 'group-dashboard-loading'
-    );
+    const filteredMenu = menuItem.items.filter((m) => m.id !== 'group-dashboard-loading');
 
     setMenuItems({ items: [...filteredMenu] });
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate(`/login`, {
+        state: {
+          from: ''
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getInitials = (fullName) => {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    const first = parts[0]?.[0] || '';
+    const last = parts[1]?.[0] || '';
+    return (first + last).toUpperCase();
+  };
 
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
 
@@ -99,12 +136,78 @@ export default function Navigation() {
   return (
     <Box
       sx={{
-        pt: drawerOpen ? (isHorizontal ? 0 : 2) : 0,
         '& > ul:first-of-type': { mt: 0 },
         display: isHorizontal ? { xs: 'block', lg: 'flex' } : 'block',
         alignItems: 'center'
       }}
     >
+      {drawerOpen && (
+        <>
+          <Card
+            elevation={0}
+            sx={{
+              m: 1.6,
+              px: 2,
+              borderRadius: 1.6,
+              border: (theme) => `1px solid ${theme.palette.divider}`
+            }}
+          >
+            <CardHeader
+              sx={{
+                py: 2,
+                '& .MuiCardHeader-action': {
+                  alignSelf: 'center'
+                }
+              }}
+              title={
+                <Stack>
+                  <Typography>{user?.nameuser}</Typography>
+                  <Typography variant="body2" fontWeight="light">
+                    {user?.profile}
+                  </Typography>
+                </Stack>
+              }
+              action={
+                <IconButton onClick={() => setOpenMenu(openMenu === 1 ? 0 : 1)}>
+                  <Sort />
+                </IconButton>
+              }
+            />
+            <Collapse in={openMenu === 1} timeout="auto" unmountOnExit>
+              <CardContent
+                sx={{
+                  p: 0,
+                  pb: '0px !important'
+                }}
+              >
+                <List component="nav">
+                  <ListItemButton
+                    onClick={handleLogout}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'transparent'
+                      },
+                      '&:hover .MuiListItemText-primary': {
+                        color: 'primary.main'
+                      },
+                      '&:hover .MuiListItemIcon-root svg': {
+                        color: 'primary.main'
+                      },
+                      py: 0.5,
+                      pl: 0.5
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Logout variant="Bulk" size={18} />
+                    </ListItemIcon>
+                    <ListItemText primary="Cerrar Sesión" />
+                  </ListItemButton>
+                </List>
+              </CardContent>
+            </Collapse>
+          </Card>
+        </>
+      )}
       {navGroups}
     </Box>
   );

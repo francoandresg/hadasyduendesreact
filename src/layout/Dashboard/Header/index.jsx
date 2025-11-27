@@ -17,6 +17,7 @@ import useConfig from 'hooks/useConfig';
 
 // assets
 import { ListIcon } from '@phosphor-icons/react';
+import { HamburgerMenu } from 'iconsax-reactjs';
 
 // ==============================|| MAIN LAYOUT - HEADER ||============================== //
 
@@ -52,7 +53,7 @@ export default function Header() {
             p: 1
           })}
         >
-          <ListIcon weight='duotone' />
+          <HamburgerMenu variant='Linear' />
         </IconButton>
       ) : null}
       {headerContent}

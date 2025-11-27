@@ -50,10 +50,12 @@ export const updateBox = async (box) => {
 
 export const deleteBox = async (idBox) => {
   try {
-    const response = await axios.delete('/maintainers/boxes/', {
-      data: { idBox } // <= importante
-    });
-    return response.data; // { success: true }
+    const response = await axios.delete(
+      `/maintainers/boxes/`,
+      {},
+      { params: { idBox } }
+    );
+    return response.data;
   } catch (error) {
     const errorMessage =
       error.response?.data?.error ||
@@ -68,17 +70,21 @@ export const deleteBox = async (idBox) => {
   }
 };
 
-export const updateState = async (idBox, state) => {
+export const updateEstado = async (idBox, state) => {
   try {
-    const response = await axios.post('/maintainers/boxes/state', { idBox, state });
-    return response.data; // { success: true }
-  } catch (error) {
-    const errorMessage =
-      error.response?.data?.error ||
-      error.response?.data?.message ||
-      error.message ||
-      'Error inesperado al actualizar el estado del box.';
+    const response = await axios.put(
+      '/maintainers/boxes/',
+      { idBox, state },
+      {
+        params: {
+          state: true
+        }
+      }
+    );
 
+    return response.data;
+  } catch (error) {
+    const errorMessage = error?.response?.data?.message || error?.message || 'Error inesperado al actualizar el estado del box.';
     return {
       success: false,
       message: errorMessage

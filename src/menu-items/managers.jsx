@@ -1,10 +1,10 @@
 // assets
-import { CalendarIcon, HandCoinsIcon } from '@phosphor-icons/react';
+import { Calendar, BoxAdd } from 'iconsax-reactjs';
 
 // icons
 const icons = {
-  Calendar: CalendarIcon,
-  HandCoins: HandCoinsIcon
+  Calendar: Calendar,
+  BoxAdd: BoxAdd
 };
 
 // ==============================|| MENU ITEMS - MANAGERS ||============================== //
@@ -22,13 +22,6 @@ const managers = {
       url: '/managers/appointments',
       icon: icons.Calendar
     },
-    {
-      id: 'material-delivery',
-      title: 'Material Entregado',
-      type: 'item',
-      url: '/managers/material-delivery',
-      icon: icons.HandCoins
-    }
   ]
 };
 

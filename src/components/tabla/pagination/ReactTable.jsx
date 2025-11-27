@@ -1,24 +1,39 @@
 import PropTypes from 'prop-types';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableContainer from '@mui/material/TableContainer';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import Pagination from '@mui/material/Pagination';
-import { Typography } from '@mui/material';
-import { PlusIcon, ExportIcon, TrashIcon, PencilLineIcon, EyeIcon, CheckCircleIcon} from '@phosphor-icons/react';
+// MUI
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableContainer,
+  TableCell,
+  TableHead,
+  TableRow,
+  Stack,
+  Box,
+  Button,
+  IconButton,
+  Pagination,
+  Typography,
+  InputLabel,
+  MenuItem,
+  Select,
+  FormControl,
+  Divider
+} from '@mui/material';
+
+// Icons
+import { PlusIcon, ExportIcon, TrashIcon, PencilLineIcon, EyeIcon } from '@phosphor-icons/react';
+
+// Utils
 import SimpleBar from 'components/third-party/SimpleBar';
 import { exportToExcel } from 'utils/exportToExcel';
 import { DebouncedInput, HeaderSort } from 'components/third-party/react-table';
 import { LoadingSkeleton } from 'components/tabla/pagination/LoadingSkeleton';
+import { globalStrictFilter } from 'utils/tableUtils';
+
+// React-Table
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -28,13 +43,62 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 
-import { globalStrictFilter } from 'utils/tableUtils';
+// 🟦 Extraer columna Acciones → mucho más limpio
+const useActionsColumn = ({ onEdit, onDelete, onView }) => {
+  return useMemo(() => {
+    if (!onEdit && !onDelete && !onView) return [];
 
-import { useTheme } from '@mui/material/styles';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
+    return [
+      {
+        id: 'acciones',
+        header: 'Acciones',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Stack direction="row" spacing={1}>
+            {onView && (
+              <IconButton
+                color="info"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onView(row.original);
+                }}
+              >
+                <EyeIcon weight="duotone" />
+              </IconButton>
+            )}
+
+            {onEdit && (
+              <IconButton
+                color="warning"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(row.original);
+                }}
+              >
+                <PencilLineIcon weight="duotone" />
+              </IconButton>
+            )}
+
+            {onDelete && (
+              <IconButton
+                color="error"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(row.original);
+                }}
+              >
+                <TrashIcon weight="duotone" />
+              </IconButton>
+            )}
+          </Stack>
+        )
+      }
+    ];
+  }, [onEdit, onDelete, onView]);
+};
 
 function ReactTable({
   columns,
@@ -49,16 +113,14 @@ function ReactTable({
   loading = true,
   pointer,
   height,
-  groupedHeaders,
-  isExpanded,
-  onToggleExpand,
   showControls = true,
-  rowsPadding,
   padding = false,
   pageLength = 10,
-  title,
-  deleteMode = 'soft'
+  title
 }) {
+  // ---------------------------
+  // STATES
+  // ---------------------------
   const [sorting, setSorting] = useState();
   const [columnFilters, setColumnFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
@@ -67,129 +129,19 @@ function ReactTable({
     pageSize: pageLength
   });
 
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === 'dark';
-
-  useEffect(() => {
-    if (!showControls) {
-      setPagination({ pageIndex: 0, pageSize: pageLength });
-    }
-  }, [showControls]);
-
-  useEffect(() => {
-    if (showControls) {
-      setPagination((prev) => ({
-        ...prev,
-        pageIndex: 0
-      }));
-    }
-  }, [data, globalFilter]);
+  // ---------------------------
+  // MEMOS
+  // ---------------------------
+  const actionsColumn = useActionsColumn({ onEdit, onDelete, onView });
 
   const dynamicColumns = useMemo(() => {
-    if (onEdit || onDelete || onView || onConfirm) {
-      return [
-        ...columns,
-        {
-          id: 'acciones',
-          header: 'Acciones',
-          cell: ({ row }) => {
-            const { estado } = row.original;
-
-            return (
-              <Stack direction="row" spacing={1}>
-                {onView && (
-                  <IconButton
-                    color="info"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (row?.original) onView(row.original);
-                    }}
-                  >
-                    <EyeIcon weight="duotone" />
-                  </IconButton>
-                )}
-
-                {onEdit && (
-                  <IconButton
-                    title="Editar"
-                    color="warning"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (row?.original) onEdit(row.original);
-                    }}
-                  >
-                    <PencilLineIcon weight="duotone" />
-                  </IconButton>
-                )}
-
-                {/* 👇 Aquí la diferencia entre "real" y "soft" */}
-                {onDelete && (
-                  <>
-                    {deleteMode === 'soft' ? (
-                      <>
-                        {estado === 1 && (
-                          <IconButton
-                            title="Desactivar"
-                            color="error"
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (row?.original) onDelete(row.original);
-                            }}
-                          >
-                            <TrashIcon weight="duotone" />
-                          </IconButton>
-                        )}
-                        {(estado === 0 || estado === 2) && onConfirm && (
-                          <IconButton
-                            title="Activar"
-                            color="success"
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onConfirm?.(row.original);
-                            }}
-                          >
-                            <CheckCircleIcon size={32} weight="duotone" />
-                          </IconButton>
-                        )}
-                      </>
-                    ) : (
-                      <IconButton
-                        title="Eliminar"
-                        color="error"
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (row?.original) onDelete(row.original);
-                        }}
-                      >
-                        <TrashIcon weight="duotone" />
-                      </IconButton>
-                    )}
-                  </>
-                )}
-              </Stack>
-            );
-          },
-          enableSorting: false
-        }
-      ];
-    }
-    return columns;
-  }, [columns, onEdit, onDelete, onView, onConfirm, deleteMode]);
+    return [...columns, ...actionsColumn];
+  }, [columns, actionsColumn]);
 
   const table = useReactTable({
     data,
     columns: dynamicColumns,
-    state: {
-      sorting,
-      columnFilters,
-      globalFilter,
-      ...(showControls && { pagination })
-    },
+    state: { sorting, columnFilters, globalFilter, ...(showControls && { pagination }) },
     autoResetPageIndex: false,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -209,72 +161,65 @@ function ReactTable({
 
   const pageCount = table.getPageCount();
 
-  return loading ? (
-    <LoadingSkeleton columns={columns} height={height} rowsPadding={rowsPadding} showControls={showControls} pageLength={pageLength} />
-  ) : (
-    <Paper elevation={0} sx={{ borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: theme.palette.divider }}>
-      {/* Filtros y acciones */}
+  const handlePageSizeChange = useCallback((e) => table.setPageSize(Number(e.target.value)), [table]);
+
+  // ---------------------------
+  // RENDER
+  // ---------------------------
+  if (loading) {
+    return <LoadingSkeleton columns={columns} height={height} showControls={showControls} pageLength={pageLength} />;
+  }
+
+  return (
+    <Paper elevation={0} sx={{ borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
+      {/* ---------- TÍTULO ---------- */}
       {title && (
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          alignItems={{ xs: 'center', sm: 'center' }}
-          justifyContent="space-between"
-          sx={{ px: 2, py: 1 }}
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 2, py: 1 }}>
           <Typography variant="h5">{title}</Typography>
         </Stack>
       )}
 
+      {/* ---------- CONTROLES ---------- */}
       {showControls && (
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          alignItems={{ xs: 'center', sm: 'center' }}
-          justifyContent="space-between"
-          sx={{ px: 2, py: 1 }}
-        >
-          <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="space-between" sx={{ px: 2, py: 1 }}>
+          <Stack direction="row" spacing={1}>
             {onExport && (
               <Button
                 variant="contained"
                 color="success"
-                onClick={() =>
+                onClick={() => {
+                  // Clonamos los datos para no modificar el original
+                  const exportData = table.getFilteredRowModel().rows.map((d) => {
+                    const row = { ...d.original };
+
+                    // Transformar 'state' si existe
+                    if ('state' in row) {
+                      row.state = row.state === 1 ? 'Activado' : 'Desactivado';
+                    }
+
+                    // Eliminar columna de acciones si existe
+                    if ('acciones' in row) {
+                      delete row.acciones;
+                    }
+
+                    return row;
+                  });
+
                   exportToExcel(
-                    table.getFilteredRowModel().rows.map((d) => d.original),
-                    headers,
+                    exportData,
+                    headers.filter((h) => h.key !== 'acciones'),
                     'datos-exportados.xlsx'
-                  )
-                }
-                sx={{
-                  minWidth: 'auto',
-                  width: 40,
-                  height: 40,
-                  padding: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  );
                 }}
+                sx={{ width: 40, height: 40, p: 0, minWidth: 'auto' }}
               >
-                <ExportIcon weight="duotone" fontSize="small" />
+                <ExportIcon weight="regular" />
               </Button>
             )}
+
             {onAdd && (
-              <Button
-                color="primary"
-                variant="contained"
-                onClick={onAdd}
-                sx={{
-                  minWidth: 'auto',
-                  width: 40,
-                  height: 40,
-                  padding: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <PlusIcon weight="duotone" fontSize="small" />
+              <Button variant="contained" color="primary" onClick={onAdd} sx={{ width: 40, height: 40, p: 0, minWidth: 'auto' }}>
+                <PlusIcon weight="regular" />
               </Button>
             )}
 
@@ -282,37 +227,27 @@ function ReactTable({
               value={globalFilter ?? ''}
               onFilterChange={(value) => setGlobalFilter(String(value))}
               placeholder={`Buscar en ${data.length} registros...`}
+              sx={{ height: 40 }}
             />
           </Stack>
 
-          {/* Selector de cantidad de filas */}
-          {showControls && (
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-              <InputLabel id="page-size-label" sx={{ marginRight: '5px' }}>
-                Filas
-              </InputLabel>
-              <FormControl size="small" sx={{ minWidth: 100 }}>
-                <Select
-                  labelId="page-size-label"
-                  id="page-size"
-                  value={pagination.pageSize}
-                  onChange={(e) => {
-                    table.setPageSize(Number(e.target.value));
-                  }}
-                >
-                  {[10, 15, 20, 30, 50].map((size) => (
-                    <MenuItem key={size} value={size}>
-                      {size}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-          )}
+          {/* Filas por página */}
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <InputLabel>Filas</InputLabel>
+            <FormControl size="small" sx={{ minWidth: 90, height: 40 }}>
+              <Select value={pagination.pageSize} onChange={handlePageSizeChange} style={{ height: 40 }}>
+                {[10, 15, 20, 30, 50].map((size) => (
+                  <MenuItem key={size} value={size}>
+                    {size}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
         </Stack>
       )}
 
-      {/* Tabla */}
+      {/* ---------- TABLA ---------- */}
       <TableContainer
         component={Paper}
         elevation={0}
@@ -333,45 +268,33 @@ function ReactTable({
             }}
           >
             <TableHead className="sticky-header">
-              {groupedHeaders && (
-                <TableRow>
-                  {groupedHeaders.map((group, idx) => (
-                    <TableCell
-                      key={idx}
-                      align="center"
-                      colSpan={group.colSpan}
-                      sx={{
-                        backgroundColor: group.bgColor || 'transparent',
-                        color: group.color || 'inherit',
-                        fontWeight: 'bold',
-                        padding: '6px 16px'
-                      }}
-                    >
-                      {group.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              )}
-
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} sx={{ whiteSpace: 'nowrap' }}>
                   {headerGroup.headers.map((header) => {
                     const bgColor = header.column.columnDef?.color;
+
                     return (
                       <TableCell
                         key={header.id}
-                        {...header.column.columnDef.meta}
                         onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                         className={header.column.getCanSort() ? 'cursor-pointer prevent-select' : undefined}
                         sx={{
-                          ...(!!bgColor && { color: bgColor }),
-                          borderTop: showControls && '1px solid rgba(197, 197, 197, 0.28)', // borde superior
-                          borderBottom: '1px solid rgba(197, 197, 197, 0.28) !important' // borde inferior
+                          ...(bgColor && { color: bgColor }),
+                          paddingLeft: '12px !important',
+
+                          position: 'sticky',
+                          top: 0,
+                          zIndex: 1,
+
+                          backgroundColor: (theme) => `${theme.palette.background.default}`,
+
+                          borderTop: (theme) => `1px solid ${theme.palette.divider} !important`,
+                          borderBottom: (theme) => `1px solid ${theme.palette.divider} !important`
                         }}
                       >
-                        {header.isPlaceholder ? null : (
+                        {!header.isPlaceholder && (
                           <Stack direction="row" spacing={1} alignItems="center">
-                            <Box>{flexRender(header.column.columnDef.header, header.getContext())}</Box>
+                            {flexRender(header.column.columnDef.header, header.getContext())}
                             {header.column.getCanSort() && <HeaderSort column={header.column} />}
                           </Stack>
                         )}
@@ -382,47 +305,45 @@ function ReactTable({
               ))}
             </TableHead>
             <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onClick={() => onRowClick?.(row)}
-                  sx={{
-                    '&:hover': { backgroundColor: 'inherit' },
-                    whiteSpace: 'nowrap'
-                  }}
-                  style={{ cursor: pointer }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      {...cell.column.columnDef.meta}
-                      sx={{
-                        borderBottom: '1px solid rgba(197, 197, 197, 0.28) !important', // 👈 agregado aquí
-                        padding: padding ? '0px !important' : '9px !important'
-                      }}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {table.getRowModel().rows.map((row, index) => {
+                const isLast = index === table.getRowModel().rows.length - 1;
+
+                return (
+                  <TableRow key={row.id} onClick={() => onRowClick?.(row)} sx={{ '&:hover': { backgroundColor: 'inherit !important' } }}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        sx={{
+                          borderBottom: isLast
+                            ? (theme) => `1px solid ${theme.palette.divider} !important`
+                            : (theme) => `1px solid ${theme.palette.divider} !important`,
+                          borderColor: 'divider',
+                          padding: padding ? '0px !important' : '9px !important'
+                        }}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </SimpleBar>
       </TableContainer>
 
-      {/* Paginación */}
+      {/* ---------- PAGINACIÓN ---------- */}
       {showControls && (
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          alignItems={{ xs: 'center', sm: 'center' }}
+          alignItems="center"
           justifyContent="space-between"
-          sx={{ px: 1, py: 1, borderTop: '1px solid rgba(197, 197, 197, 0.28)' }}
+          sx={{ px: 2, py: 1, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}
         >
-          <Box sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
+          <Typography variant="body2">
             Página {pagination.pageIndex + 1} de {pageCount}
-          </Box>
+          </Typography>
+
           <Pagination
             count={pageCount}
             page={pagination.pageIndex + 1}
@@ -451,20 +372,10 @@ ReactTable.propTypes = {
   loading: PropTypes.bool,
   height: PropTypes.number,
   pointer: PropTypes.string,
-  groupedHeaders: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      colSpan: PropTypes.number.isRequired
-    })
-  ),
-  isExpanded: PropTypes.bool,
-  onToggleExpand: PropTypes.func,
   showControls: PropTypes.bool,
-  rowsPadding: PropTypes.number,
   padding: PropTypes.bool,
   pageLength: PropTypes.number,
-  title: PropTypes.string,
-  deleteMode: PropTypes.oneOf(['real', 'soft'])
+  title: PropTypes.string
 };
 
 export default ReactTable;

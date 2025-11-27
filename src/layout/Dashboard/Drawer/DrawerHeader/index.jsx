@@ -28,7 +28,7 @@ export default function DrawerHeader({ open }) {
         paddingLeft: isHorizontal ? { xs: '24px', lg: '0' } : open ? '24px' : 0
       }}
     >
-      <Logo isIcon={!open} sx={{ width: open ? 'auto' : 52, height: 'auto' }} />
+      <Logo isIcon={!open} sx={{ width: open ? 'auto' : 52, height: 'auto', marginTop: 1 }} />
     </DrawerHeaderStyled>
   );
 }

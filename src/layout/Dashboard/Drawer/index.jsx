@@ -43,17 +43,22 @@ export default function MainDrawer({ window }) {
           open={drawerOpen}
           onClose={() => handlerDrawerOpen(!drawerOpen)}
           ModalProps={{ keepMounted: true }}
-          sx={{ display: { xs: drawerOpen ? 'block' : 'none', lg: 'none' } }}
+          sx={{
+            display: { xs: drawerOpen ? 'block' : 'none', lg: 'none' },
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)'
+          }}
           slotProps={{
             paper: {
-              sx: {
+              sx: (theme) => ({
                 boxSizing: 'border-box',
                 width: DRAWER_WIDTH,
                 borderRight: '1px solid',
                 borderColor: 'divider',
+                backgroundColor: theme.palette.background.default,
                 backgroundImage: 'none',
                 boxShadow: 'inherit'
-              }
+              })
             }
           }}
         >
