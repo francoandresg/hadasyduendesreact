@@ -1,7 +1,7 @@
 import axios from 'utils/axios';
 
 export const getAllBoxes = async () => {
-  const response = await axios.get('/maintainers/boxes/');
+  const response = await axios.get('/boxes');
   return response.data;
 };
 

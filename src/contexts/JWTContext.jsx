@@ -55,7 +55,7 @@ export const JWTProvider = ({ children }) => {
         const serviceToken = window.localStorage.getItem('serviceToken');
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
-          const response = await axios.get('/verify/');
+          const response = await axios.get('/verify');
           const { user } = response.data;
           dispatch({
             type: LOGIN,
