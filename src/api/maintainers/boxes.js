@@ -33,17 +33,14 @@ export const updateBox = async (box) => {
 
 export const deleteBox = async (idBox) => {
   try {
-    const response = await axios.delete(
-      `/maintainers/boxes/`,
-      {},
-      { params: { idBox } }
-    );
+    const response = await axios.delete(`/maintainers/boxes`, {
+      params: { idBox }
+    });
     return response.data;
   } catch (error) {
-    const errorMessage = error?.message || 'Error inesperado al eliminar el team.';
     return {
       success: false,
-      message: errorMessage
+      message: error?.message || 'Error inesperado al eliminar el box.'
     };
   }
 };
