@@ -17,18 +17,18 @@ import {
   ListItemIcon,
   ListItemText
 } from '@mui/material';
-import { Sort, Logout } from 'iconsax-reactjs';
+import { Sort, Logout, Setting2 } from 'iconsax-reactjs';
 
 // project-imports
 import NavGroup from './NavGroup';
 import NavItem from './NavItem';
-import { useGetMenu, useGetMenuMaster } from 'api/menu';
+import { useGetMenuMaster } from 'api/menu';
 import { MenuOrientation, HORIZONTAL_MAX_ITEM } from 'config';
 import useConfig from 'hooks/useConfig';
 import menuItem from 'menu-items';
 
 import useAuth from 'hooks/useAuth';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 
 function isFound(arr, str) {
   return arr.items.some((element) => element.id === str);
@@ -40,7 +40,6 @@ export default function Navigation() {
   const downLG = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const { logout, user } = useAuth();
   const { menuOrientation } = useConfig();
-  // const { menuLoading } = useGetMenu();
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
 
@@ -49,22 +48,36 @@ export default function Navigation() {
   const [selectedLevel, setSelectedLevel] = useState(0);
   const [menuItems, setMenuItems] = useState({ items: [] });
   const [openMenu, setOpenMenu] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useLayoutEffect(() => {
     const filteredMenu = menuItem.items.filter((m) => m.id !== 'group-dashboard-loading');
-
     setMenuItems({ items: [...filteredMenu] });
-  }, []);
+
+    // Verificar ruta al cargar
+    if (location.pathname === '/settings') {
+      setSelectedIndex(0);
+      setOpenMenu(1);
+    }
+  }, [location.pathname]);
+
+  useLayoutEffect(() => {
+    if (location.pathname === '/settings') {
+      setSelectedIndex(0);
+      setOpenMenu(1);
+    } else {
+      // cualquier otra ruta cierra el collapse y des-selecciona
+      setSelectedIndex(null);
+      setOpenMenu(0);
+    }
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigate(`/login`, {
-        state: {
-          from: ''
-        }
-      });
+      navigate(`/login`, { state: { from: '' } });
     } catch (err) {
       console.error(err);
     }
@@ -92,9 +105,7 @@ export default function Navigation() {
       title: item.title,
       elements: item.children,
       icon: item.icon,
-      ...(item.url && {
-        url: item.url
-      })
+      ...(item.url && { url: item.url })
     }));
   }
 
@@ -132,6 +143,11 @@ export default function Navigation() {
         );
     }
   });
+
+  const handleListItemClick = (event, index, route = '') => {
+    setSelectedIndex(index);
+    if (route) navigate(route);
+  };
 
   return (
     <Box
@@ -174,25 +190,36 @@ export default function Navigation() {
               }
             />
             <Collapse in={openMenu === 1} timeout="auto" unmountOnExit>
-              <CardContent
-                sx={{
-                  p: 0,
-                  pb: '0px !important'
-                }}
-              >
+              <CardContent sx={{ p: 0, pb: '0px !important' }}>
                 <List component="nav">
+                  <ListItemButton
+                    selected={selectedIndex === 0}
+                    onClick={(event) => handleListItemClick(event, 0, '/settings')}
+                    sx={{
+                      '&.Mui-selected': {
+                        backgroundColor: 'transparent',
+                        '&:hover': { backgroundColor: 'transparent' },
+                        '.MuiListItemText-primary': { color: 'primary.main' },
+                        '.MuiListItemIcon-root svg': { color: 'primary.main' }
+                      },
+                      '&:hover': { backgroundColor: 'transparent' },
+                      '&:hover .MuiListItemText-primary': { color: 'primary.main' },
+                      '&:hover .MuiListItemIcon-root svg': { color: 'primary.main' },
+                      py: 0.5,
+                      pl: 0.5
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Setting2 variant="Bulk" size={18} />
+                    </ListItemIcon>
+                    <ListItemText primary="Configuración" />
+                  </ListItemButton>
                   <ListItemButton
                     onClick={handleLogout}
                     sx={{
-                      '&:hover': {
-                        backgroundColor: 'transparent'
-                      },
-                      '&:hover .MuiListItemText-primary': {
-                        color: 'primary.main'
-                      },
-                      '&:hover .MuiListItemIcon-root svg': {
-                        color: 'primary.main'
-                      },
+                      '&:hover': { backgroundColor: 'transparent' },
+                      '&:hover .MuiListItemText-primary': { color: 'primary.main' },
+                      '&:hover .MuiListItemIcon-root svg': { color: 'primary.main' },
                       py: 0.5,
                       pl: 0.5
                     }}
