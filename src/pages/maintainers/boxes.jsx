@@ -1,19 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
 import ReactTable from '../../components/tabla/pagination/ReactTable';
-<<<<<<< HEAD
-import ModalAgregar from 'components/modal/ModalAgregar';
-import ModalEditar from 'components/modal/ModalEditar';
-import ModalEliminar from 'components/modal/ModalEliminar';
-import ModalState from 'components/modal/ModalState';
-import { getAllBoxes, createBox, updateBox, deleteBox, updateState } from '../../api/maintainers/boxes';
-import { openSnackbar } from 'utils/snackbar';
-=======
 import ModalAdd from '../../components/modal/ModalAdd';
 import ModalEdit from '../../components/modal/ModalEdit';
 import ModalDelete from '../../components/modal/ModalDelete';
 import ModalState from '../../components/modal/ModalState';
 
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
 import { Switch } from '@mui/material';
 
 import { getAllBoxes, createBox, updateBox, deleteBox, updateEstado } from '../../api/maintainers/boxes';
@@ -21,53 +12,8 @@ import { getAllBoxes, createBox, updateBox, deleteBox, updateEstado } from '../.
 import { openSnackbar } from 'utils/snackbar';
 
 export default function WidgetBoxes() {
-  // Control de altura
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-
-  // Estado general
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
-  const [boxes, setBoxes] = useState([]);
-  const [permisos, setPermisos] = useState([]);
-
-  // Estados modales
-  const [openModalAdd, setOpenModalAdd] = useState(false); 
-  const [openModalEdit, setOpenModalEdit] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [openModalState, setOpenModalState] = useState(false);
-
-  // Selecciones
-  const [boxSeleccionado, setBoxSeleccionado] = useState(null);
-  const [boxAEliminar, setBoxAEliminar] = useState(null);
-  const [boxState, setBoxState] = useState(null);
-  const [newState, setNewState] = useState(null);
-
-  // Definición de columnas 
-  const columnas = [
-    {
-      header: 'ID',
-      accessorKey: 'id_box',
-      type: 'int',
-      visible: true,
-      enableHiding: false,
-    },
-    {
-      header: 'Box',
-      accessorKey: 'box',
-      type: 'string',
-      required: 1,
-      visible: true,
-    },
-    {
-      header: 'Estado',
-      accessorKey: 'state',
-      type: 'boolean',
-      visible: true,
-    },
-  ];
-
-  // Ajustar altura en tiempo real
-=======
 
   const [boxes, setBoxes] = useState([]);
   const [columnDefs, setColumnDefs] = useState([]);
@@ -87,31 +33,18 @@ export default function WidgetBoxes() {
   const [newState, setNewState] = useState(null);
 
   // Window resize
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
   useEffect(() => {
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-<<<<<<< HEAD
-  // Cargar data inicial
-=======
   // Fetch data
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
-<<<<<<< HEAD
-        setLoading(true);
-        const data = await getAllBoxes();
-        setBoxes(data.data || []);
-        setPermisos([]); // Tu backend no devuelve permisos
-      } catch (error) {
-        console.error('Error al obtener boxes:', error);
-      } finally {
-        setLoading(false);
-=======
         const data = await getAllBoxes();
         if (!isMounted) return;
 
@@ -150,35 +83,10 @@ export default function WidgetBoxes() {
       } catch (error) {
         console.error('Error fetching boxes:', error);
         if (isMounted) setLoading(false);
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       }
     };
+
     fetchData();
-<<<<<<< HEAD
-  }, []);
-
-  // Columnas con comportamiento dinámico (switch para state)
-  const columns = useMemo(() => {
-    return columnas.map((col) => {
-      const baseColumn = { ...col };
-
-      if (col.accessorKey === 'state') {
-        baseColumn.cell = (row) => {
-          const state = row.row.original.state === 1;
-          const handleChange = () => {
-            setBoxState(row.row.original);
-            setNewState(state ? 0 : 1);
-            setOpenModalState(true);
-          };
-          return (
-            <Switch
-              checked={state}
-              onChange={handleChange}
-              color="primary"
-              size="small"
-            />
-          );
-=======
     return () => (isMounted = false);
   }, []);
 
@@ -211,21 +119,11 @@ export default function WidgetBoxes() {
           };
 
           return <Switch checked={stateBool} onChange={handleChange} color="primary" size="small" />;
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
         };
       }
 
       return baseColumn;
     });
-<<<<<<< HEAD
-  }, []);
-
-  // Agregar
-  const handleGuardarCambios = async (datosNuevos) => {
-    const response = await createBox(datosNuevos);
-    if (response.success) {
-      setBoxes((prev) => [response.box, ...prev]);
-=======
   }, [columnDefs]);
 
   // ------- ADD -------
@@ -237,18 +135,14 @@ export default function WidgetBoxes() {
 
     if (response.success) {
       setBoxes((prev) => [response.newRow, ...prev]);
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       setOpenModalAdd(false);
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
         alert: { color: 'success', variant: 'outlined' },
-<<<<<<< HEAD
-=======
         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       });
     } else {
       openSnackbar({
@@ -256,24 +150,12 @@ export default function WidgetBoxes() {
         message: response.message,
         variant: 'alert',
         alert: { color: 'error', variant: 'outlined' },
-<<<<<<< HEAD
-=======
         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       });
     }
   };
 
-<<<<<<< HEAD
-  // Editar
-  const handleEditarCambios = async (datosEditados) => {
-    const response = await updateBox(datosEditados);
-    if (response.success) {
-      setBoxes((prev) =>
-        prev.map((b) => (b.idBox === response.box.idBox ? response.box : b))
-      );
-=======
   // ------- EDIT -------
   const handleEdit = (box) => {
     setSelectedBox(box);
@@ -291,18 +173,14 @@ export default function WidgetBoxes() {
     if (response.success) {
       setBoxes((prev) => prev.map((b) => (b.idBox === response.updatedRow.idBox ? response.updatedRow : b)));
 
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       setOpenModalEdit(false);
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
         alert: { color: 'success', variant: 'outlined' },
-<<<<<<< HEAD
-=======
         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       });
     } else {
       openSnackbar({
@@ -310,23 +188,12 @@ export default function WidgetBoxes() {
         message: response.message,
         variant: 'alert',
         alert: { color: 'error', variant: 'outlined' },
-<<<<<<< HEAD
-=======
         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       });
     }
   };
 
-<<<<<<< HEAD
-  // Eliminar
-  const confirmarEliminacion = async () => {
-    const response = await deleteBox(boxAEliminar.idBox);
-    if (response.success) {
-      setBoxes((prev) => prev.filter((b) => b.idBox !== boxAEliminar.idBox));
-      setOpenDialog(false);
-=======
   // ------- DELETE -------
   const handleDelete = (box) => {
     setBoxToDelete(box);
@@ -341,17 +208,13 @@ export default function WidgetBoxes() {
 
       setOpenModalDelete(false);
       setBoxToDelete(null);
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       openSnackbar({
         open: true,
         message: response.message,
         variant: 'alert',
         alert: { color: 'success', variant: 'outlined' },
-<<<<<<< HEAD
-=======
         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       });
     } else {
       openSnackbar({
@@ -359,27 +222,12 @@ export default function WidgetBoxes() {
         message: response.message,
         variant: 'alert',
         alert: { color: 'error', variant: 'outlined' },
-<<<<<<< HEAD
-=======
         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
         close: true
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
       });
     }
   };
 
-<<<<<<< HEAD
-  // Estado (switch)
-  const handleConfirmState = async () => {
-    try {
-      const response = await updateState(boxState.idBox, newState);
-      if (response.success) {
-        setBoxes((prev) =>
-          prev.map((b) =>
-            b.idBox === boxState.idBox ? { ...b, state: newState } : b
-          )
-        );
-=======
   // ------- CHANGE STATE -------
   const handleCloseStateModal = () => {
     setOpenStateModal(false);
@@ -397,17 +245,13 @@ export default function WidgetBoxes() {
 
       if (response.success) {
         setBoxes((prev) => prev.map((b) => (b.idBox === boxStateObj.idBox ? { ...b, state: newState } : b)));
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
         openSnackbar({
           open: true,
           message: response.message,
           variant: 'alert',
           alert: { color: 'success', variant: 'outlined' },
-<<<<<<< HEAD
-=======
           anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
           close: true
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
         });
       } else {
         openSnackbar({
@@ -415,16 +259,6 @@ export default function WidgetBoxes() {
           message: response.message,
           variant: 'alert',
           alert: { color: 'error', variant: 'outlined' },
-<<<<<<< HEAD
-        });
-      }
-    } catch (error) {
-      console.error('Error al actualizar state:', error);
-    } finally {
-      setOpenModalState(false);
-      setBoxState(null);
-      setNewState(null);
-=======
           anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
           close: true
         });
@@ -433,64 +267,31 @@ export default function WidgetBoxes() {
       console.error('Error updating state:', error);
     } finally {
       handleCloseStateModal();
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
     }
   };
 
-  // Render
   return (
     <>
       <ReactTable
         columns={columns}
         data={boxes}
-<<<<<<< HEAD
-        onAdd={permisos[0]?.crear === 1 ? () => setOpenModalAdd(true) : undefined}
-        onEdit={permisos[0]?.editar === 1 ? (row) => { setBoxSeleccionado(row); setOpenModalEdit(true); } : undefined}
-        onDelete={permisos[0]?.eliminar === 1 ? (row) => { setBoxAEliminar(row); setOpenDialog(true); } : undefined}
-=======
         onAdd={handleAdd}
         onEdit={handleEdit}
         onDelete={handleDelete}
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
         height={windowHeight - 349}
         loading={loading}
       />
 
-<<<<<<< HEAD
-      <ModalAgregar
-        open={openModalAdd}
-        onClose={() => setOpenModalAdd(false)}
-        onSave={handleGuardarCambios}
-        columns={columns}
-=======
       <ModalAdd
         open={openModalAdd}
         onClose={handleCloseModalAdd}
         onSave={handleAddSave}
         columns={columnDefs}
         modalGrid="xs"
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
         entity="box"
         entityConfirm="el box"
       />
 
-<<<<<<< HEAD
-      <ModalEditar
-        open={openModalEdit}
-        onClose={() => setOpenModalEdit(false)}
-        data={boxSeleccionado}
-        onSave={handleEditarCambios}
-        columns={columns}
-        entity="box"
-        entityConfirm="el box"
-      /> 
-
-      <ModalEliminar
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        onConfirm={confirmarEliminacion}
-        fila={boxAEliminar?.box}
-=======
       <ModalEdit
         open={openModalEdit}
         onClose={handleCloseModalEdit}
@@ -507,26 +308,16 @@ export default function WidgetBoxes() {
         onClose={() => setOpenModalDelete(false)}
         onConfirm={handleConfirmDelete}
         fila={boxToDelete?.box}
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
         entity="el box"
       />
 
       <ModalState
-<<<<<<< HEAD
-        open={openModalState}
-        onClose={() => setOpenModalState(false)}
-        onConfirm={handleConfirmState}
-        fila={boxState?.box}
-        entity="el box"
-        state={boxState?.state}
-=======
         open={openStateModal}
         onClose={handleCloseStateModal}
         onConfirm={handleConfirmState}
         fila={boxStateObj?.box}
         entity="el box"
         state={boxStateObj?.state}
->>>>>>> b94638960b4761d1a5749c14901ddc11ce698362
         newState={newState}
       />
     </>
