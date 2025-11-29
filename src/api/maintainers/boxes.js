@@ -8,9 +8,14 @@ export const getAllBoxes = async () => {
 export const createBox = async (box) => {
   try {
     const response = await axios.post('/maintainers/boxes/', box);
-    return response.data;
+    return response.data; // { success: true, newRow: {...} }
   } catch (error) {
-    const errorMessage = error.response?.data?.message || error.message || 'Error inesperado al crear el box.';
+    const errorMessage =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.message ||
+      'Error inesperado al crear el box.';
+
     return {
       success: false,
       message: errorMessage
@@ -21,9 +26,14 @@ export const createBox = async (box) => {
 export const updateBox = async (box) => {
   try {
     const response = await axios.put('/maintainers/boxes/', box);
-    return response.data;
+    return response.data; // { success: true, updatedRow: {...} }
   } catch (error) {
-    const errorMessage = error?.message || 'Error inesperado al actualizar el box.';
+    const errorMessage =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.message ||
+      'Error inesperado al actualizar el box.';
+
     return {
       success: false,
       message: errorMessage
@@ -38,6 +48,12 @@ export const deleteBox = async (idBox) => {
     });
     return response.data;
   } catch (error) {
+    const errorMessage =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.message ||
+      'Error inesperado al eliminar el box.';
+
     return {
       success: false,
       message: error?.message || 'Error inesperado al eliminar el box.'
