@@ -20,8 +20,9 @@ const PageTitleUpdater = () => {
       '/maintainers/services': 'Servicios',
       '/maintainers/materials': 'Materiales',
       '/maintainers/clients': 'Clientes',
-      '/maintainers/roles': 'Cargos',
-      '/maintainers/users': 'Usuarios'
+      '/maintainers/services-type': 'Tipos de Servicio',
+      '/maintainers/users': 'Usuarios',
+      '/settings': 'Configuración'
     };
 
     // Las rutas estáticas sobrescriben las dinámicas si hay conflicto

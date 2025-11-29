@@ -12,13 +12,13 @@ const WidgetApointments = Loadable(lazy(() => import('pages/managers/appointment
 // render - maintainers
 const WidgetBoxes = Loadable(lazy(() => import('pages/maintainers/boxes')));
 const WidgetProfesionals = Loadable(lazy(() => import('pages/maintainers/profesionals')));
+const WidgetServicesType = Loadable(lazy(() => import('pages/maintainers/servicesType')));
 const WidgetServices = Loadable(lazy(() => import('pages/maintainers/services')));
 const WidgetMaterials = Loadable(lazy(() => import('pages/maintainers/materials')));
 const WidgetClients = Loadable(lazy(() => import('pages/maintainers/clients')));
-const WidgetRoles = Loadable(lazy(() => import('pages/maintainers/roles')));
 const WidgetUsers = Loadable(lazy(() => import('pages/maintainers/users')));
 
-
+const WidgetConfiguration = Loadable(lazy(() => import('pages/settings/configuration')));
 
 const MainRoutes = {
   path: '/',
@@ -52,6 +52,10 @@ const MainRoutes = {
               element: <WidgetProfesionals />
             },
             {
+              path: 'services-type',
+              element: <WidgetServicesType />
+            },
+            {
               path: 'services',
               element: <WidgetServices />
             },
@@ -64,14 +68,14 @@ const MainRoutes = {
               element: <WidgetClients />
             },
             {
-              path: 'roles',
-              element: <WidgetRoles />
-            },
-            {
               path: 'users',
               element: <WidgetUsers />
             }
           ]
+        },
+        {
+          path: 'settings',
+          element: <WidgetConfiguration />
         }
       ]
     }

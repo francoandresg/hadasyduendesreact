@@ -59,18 +59,37 @@ export default function Breadcrumbs({
   }
 
   useEffect(() => {
+    let found = false;
     navigation?.items?.map((menu) => {
       if (menu.type && menu.type === 'group') {
         if (menu?.url && menu.url === customLocation) {
           setMain(menu);
           setItem(menu);
+          found = true;
         } else {
-          getCollapse(menu);
+          const result = getCollapse(menu);
+          if (result) found = true;
         }
       }
       return false;
     });
-  });
+
+    // Si no se encuentra en el menú y es una URL estática específica
+    if (!found && customLocation === '/settings') {
+      setMain({
+        title: 'Configuración',
+        icon: Buildings2,
+        url: '/settings',
+        type: 'group'
+      });
+      setItem({
+        title: 'Configuración',
+        icon: Buildings2,
+        url: '/settings',
+        type: 'item'
+      });
+    }
+  }, [customLocation]);
 
   // set active item state
   const getCollapse = (menu) => {
@@ -227,11 +246,7 @@ export default function Breadcrumbs({
       breadcrumbContent = (
         <MainCard
           border={card}
-          sx={
-            card === false
-              ? { bgcolor: 'transparent', borderRadius: 0, overflow: 'visible', boxShadow: 'none', ...sx }
-              : {  ...sx }
-          }
+          sx={card === false ? { bgcolor: 'transparent', borderRadius: 0, overflow: 'visible', boxShadow: 'none', ...sx } : { ...sx }}
           {...others}
           content={card}
           boxShadow={false}
@@ -245,7 +260,7 @@ export default function Breadcrumbs({
           >
             {title && titleBottom && (
               <Grid sx={{ mt: card === false ? 0 : 1 }}>
-                <Typography variant="h3" sx={{ fontWeight: 600, fontSize:'28px' }}>
+                <Typography variant="h3" sx={{ fontWeight: 600, fontSize: '28px' }}>
                   <FormattedMessage id={custom ? heading : item?.title} />
                 </Typography>
               </Grid>

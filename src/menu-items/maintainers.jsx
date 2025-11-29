@@ -34,6 +34,13 @@ const maintainers = {
       icon: icons.Profile2User
     },
     {
+      id: 'services-type',
+      title: 'Tipo de Servicios',
+      type: 'item',
+      url: '/maintainers/services-type',
+      icon: icons.Personalcard
+    },
+    {
       id: 'services',
       title: 'Servicios',
       type: 'item',
@@ -53,13 +60,6 @@ const maintainers = {
       type: 'item',
       url: '/maintainers/clients',
       icon: icons.UserSquare
-    },
-    {
-      id: 'roles',
-      title: 'Cargos',
-      type: 'item',
-      url: '/maintainers/roles',
-      icon: icons.Personalcard
     },
     {
       id: 'users',

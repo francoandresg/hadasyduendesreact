@@ -16,6 +16,7 @@ import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 
 // project-imports
 import ProfileTab from './ProfileTab';
@@ -168,13 +169,13 @@ export default function ProfilePage() {
                       </Grid>
                     </Grid>
                   </CardContent>
-
-                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <Divider/>
+                  {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="profile tabs">
                       <Tab sx={tabStyle} icon={<Profile size={18} style={{ marginBottom: 0 }} />} label="Profile" {...a11yProps(0)} />
                       <Tab sx={tabStyle} icon={<Setting2 size={18} style={{ marginBottom: 0 }} />} label="Setting" {...a11yProps(1)} />
                     </Tabs>
-                  </Box>
+                  </Box> */}
                   <TabPanel value={value} index={0} dir={theme.direction}>
                     <ProfileTab handleLogout={handleLogout} />
                   </TabPanel>
