@@ -15,6 +15,7 @@ import Link from '@mui/material/Link';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // third-party
 import * as Yup from 'yup';
@@ -154,7 +155,7 @@ export default function AuthLogin({ forgot }) {
               <Grid size={12}>
                 <AnimateButton>
                   <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                    Entrar
+                    {isSubmitting ? <CircularProgress size={24} /> : 'Entrar'}
                   </Button>
                 </AnimateButton>
               </Grid>
