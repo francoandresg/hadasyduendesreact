@@ -5,6 +5,11 @@ export const getAllServicesType = async () => {
   return response.data;
 };
 
+export const getServicesTypeSelector = async () => {
+  const response = await axios.get('/services-type/selector');
+  return response.data;
+};
+
 export const createServiceType = async (serviceType) => {
   try {
     const response = await axios.post('/services-type', serviceType);

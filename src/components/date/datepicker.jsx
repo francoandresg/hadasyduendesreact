@@ -11,14 +11,18 @@ export default function DatePicker({ value, onChange, error = false, helperText 
 
   useEffect(() => {
     if (value) {
-      setDate(value);
+      // value viene en string o date → lo conviertes a dayjs
+      setDate(dayjs(value));
     }
   }, [value]);
 
   const handleAccept = (v) => {
-    setDate(v);
+    const d = dayjs(v);
+    setDate(d);
     setOpenDate(false);
-    if (onChange) onChange(v);
+
+    // devuelves 'YYYY-MM-DD'
+    if (onChange) onChange(d.format('YYYY-MM-DD'));
   };
 
   return (
@@ -37,7 +41,7 @@ export default function DatePicker({ value, onChange, error = false, helperText 
       <MobileDatePicker
         open={openDate}
         value={date}
-        onChange={setDate}
+        onChange={(v) => setDate(dayjs(v))}
         onAccept={handleAccept}
         onClose={() => setOpenDate(false)}
         slotProps={{

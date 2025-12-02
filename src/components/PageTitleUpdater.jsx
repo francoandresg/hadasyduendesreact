@@ -16,7 +16,7 @@ const PageTitleUpdater = () => {
       '/managers/appointments': 'Citas',
       '/managers/material-delivery': 'Material Entregado',
       '/maintainers/boxes': 'Boxes',
-      '/maintainers/profesionals': 'Profesionales',
+      '/maintainers/professionals': 'Profesionales',
       '/maintainers/services': 'Servicios',
       '/maintainers/materials': 'Materiales',
       '/maintainers/clients': 'Clientes',

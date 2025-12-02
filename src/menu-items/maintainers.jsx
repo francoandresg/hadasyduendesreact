@@ -27,10 +27,10 @@ const maintainers = {
       icon: icons.Element4
     },
     {
-      id: 'profesionals',
+      id: 'professionals',
       title: 'Profesionales',
       type: 'item',
-      url: '/maintainers/profesionals',
+      url: '/maintainers/professionals',
       icon: icons.Profile2User
     },
     {

@@ -131,9 +131,9 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
 
   // ----------- RENDER DE CAMPOS -------------
   const renderField = (col) => {
-    const { accessorKey, label, header, type, options, visible, size } = col;
+    const { accessorKey, label, header, type, options, visible, visibleColumn, size, valueType } = col;
 
-    if (visible == 0) return null;
+    if (visible == 0 && visibleColumn == 1) return null;
 
     const fieldValue = form[accessorKey] ?? '';
 
@@ -149,18 +149,18 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
               return (
                 <Autocomplete
                   value={
-                    options.find((opt) => (valueType === 'label' ? opt.label === form[accessorKey] : opt.id === form[accessorKey])) || null
+                    options.find((opt) => (valueType === 'label' ? opt.name === form[accessorKey] : opt.id === form[accessorKey])) || null
                   }
                   onChange={(_, val) => {
                     if (!val) {
                       handleChange({ target: { name: accessorKey, value: '', type: 'text' } });
                       return;
                     }
-                    const newValue = valueType === 'label' ? val.label : val.id;
+                    const newValue = valueType === 'label' ? val.name : val.id;
                     handleChange({ target: { name: accessorKey, value: newValue, type: 'text' } });
                   }}
                   options={options}
-                  getOptionLabel={(o) => o.label || ''}
+                  getOptionLabel={(o) => o.name || ''}
                   renderInput={(params) => (
                     <TextField {...params} label={label} fullWidth error={!!errors[accessorKey]} helperText={errors[accessorKey]} />
                   )}
