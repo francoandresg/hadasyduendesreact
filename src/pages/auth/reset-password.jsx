@@ -4,8 +4,8 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 // project-imports
-import AuthWrapper2 from 'sections/auth/AuthWrapper2';
-import AuthResetPassword from 'sections/auth/auth-forms/AuthResetPassword';
+import AuthWrapper2 from './sections/auth/AuthWrapper2';
+import AuthResetPassword from './sections/auth/auth-forms/AuthResetPassword';
 
 // ================================|| RESET PASSWORD ||================================ //
 
@@ -15,8 +15,8 @@ export default function ResetPassword() {
       <Grid container spacing={3}>
         <Grid size={12}>
           <Stack sx={{ gap: 1, mb: { xs: -0.5, sm: 0.5 } }}>
-            <Typography variant="h3">Reset Password</Typography>
-            <Typography color="secondary">Please choose your new password</Typography>
+            <Typography variant="h3">Restablecer contraseña</Typography>
+            <Typography color="secondary">Por favor, elige tu nueva contraseña</Typography>
           </Stack>
         </Grid>
         <Grid size={12}>
@@ -26,3 +26,4 @@ export default function ResetPassword() {
     </AuthWrapper2>
   );
 }
+

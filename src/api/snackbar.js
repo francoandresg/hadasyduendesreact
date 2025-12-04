@@ -38,32 +38,36 @@ export function useGetSnackbar() {
   });
 
   const memoizedValue = useMemo(() => ({ snackbar: data }), [data]);
-
   return memoizedValue;
 }
 
 export function openSnackbar(snackbar) {
-  // to update local state based on key
-
-  const { action, open, message, anchorOrigin, variant, alert, transition, close, actionButton } = snackbar;
-
   mutate(
     endpoints.key,
     (currentSnackbar) => {
       return {
         ...currentSnackbar,
-        action: action || initialState.action,
-        open: open || initialState.open,
-        message: message || initialState.message,
-        anchorOrigin: anchorOrigin || initialState.anchorOrigin,
-        variant: variant || initialState.variant,
+
+        // valores principales
+        action: snackbar.action ?? currentSnackbar.action,
+        open: snackbar.open ?? currentSnackbar.open,
+        message: snackbar.message ?? currentSnackbar.message,
+        anchorOrigin: snackbar.anchorOrigin ?? currentSnackbar.anchorOrigin,
+        variant: snackbar.variant ?? currentSnackbar.variant,
+
+        // alert
         alert: {
-          color: alert?.color || initialState.alert.color,
-          variant: alert?.variant || initialState.alert.variant
+          color: snackbar.alert?.color ?? currentSnackbar.alert.color,
+          variant: snackbar.alert?.variant ?? currentSnackbar.alert.variant
         },
-        transition: transition || initialState.transition,
-        close: close || initialState.close,
-        actionButton: actionButton || initialState.actionButton
+
+        // otros
+        transition: snackbar.transition ?? currentSnackbar.transition,
+        close: snackbar.close ?? currentSnackbar.close,
+        actionButton: snackbar.actionButton ?? currentSnackbar.actionButton,
+
+        // soporte real para iconVariant (objeto o null)
+        iconVariant: snackbar.iconVariant ?? currentSnackbar.iconVariant
       };
     },
     false
@@ -71,7 +75,6 @@ export function openSnackbar(snackbar) {
 }
 
 export function closeSnackbar() {
-  // to update local state based on key
   mutate(
     endpoints.key,
     (currentSnackbar) => {
@@ -82,7 +85,6 @@ export function closeSnackbar() {
 }
 
 export function handlerIncrease(maxStack) {
-  // to update local state based on key
   mutate(
     endpoints.key,
     (currentSnackbar) => {
@@ -93,7 +95,6 @@ export function handlerIncrease(maxStack) {
 }
 
 export function handlerDense(dense) {
-  // to update local state based on key
   mutate(
     endpoints.key,
     (currentSnackbar) => {
@@ -104,11 +105,14 @@ export function handlerDense(dense) {
 }
 
 export function handlerIconVariants(iconVariant) {
-  // to update local state based on key
   mutate(
     endpoints.key,
     (currentSnackbar) => {
-      return { ...currentSnackbar, iconVariant, hideIconVariant: iconVariant === 'hide' };
+      return { 
+        ...currentSnackbar, 
+        iconVariant,
+        hideIconVariant: iconVariant === 'hide'
+      };
     },
     false
   );

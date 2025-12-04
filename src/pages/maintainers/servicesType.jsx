@@ -56,6 +56,7 @@ export default function WidgetServicesType() {
             accessorKey: 'idServiceType',
             type: 'number',
             visible: 0,
+            visibleColumn: 1,
             id: true,
             required: 0
           },
@@ -65,6 +66,7 @@ export default function WidgetServicesType() {
             accessorKey: 'serviceType',
             type: 'text',
             visible: 1,
+            visibleColumn: 1,
             required: 1,
             id: false,
             size: { xs: 12, md: 12 }
@@ -74,6 +76,7 @@ export default function WidgetServicesType() {
             accessorKey: 'state',
             type: 'switch',
             visible: 0,
+            visibleColumn: 1,
             required: 0,
             id: false
           }

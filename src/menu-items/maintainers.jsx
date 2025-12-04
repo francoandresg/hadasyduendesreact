@@ -27,13 +27,6 @@ const maintainers = {
       icon: icons.Element4
     },
     {
-      id: 'professionals',
-      title: 'Profesionales',
-      type: 'item',
-      url: '/maintainers/professionals',
-      icon: icons.Profile2User
-    },
-    {
       id: 'services-type',
       title: 'Tipo de Servicios',
       type: 'item',

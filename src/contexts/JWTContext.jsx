@@ -82,15 +82,23 @@ export const JWTProvider = ({ children }) => {
 
   const login = async (userId, password) => {
     const response = await axios.post('/login', { username: userId, password });
-    const { serviceToken, user } = response.data;
-    setSession(serviceToken);
-    dispatch({
-      type: LOGIN,
-      payload: {
-        isLoggedIn: true,
-        user
-      }
-    });
+
+    if (response.data.success) {
+      const { serviceToken, user } = response.data;
+      setSession(serviceToken);
+
+      dispatch({
+        type: LOGIN,
+        payload: {
+          isLoggedIn: true,
+          user
+        }
+      });
+
+      return { success: true };
+    }
+
+    return { success: false, message: response.data.message || 'Error al iniciar sesión' };
   };
 
   const register = async (email, password, firstName, lastName) => {
@@ -126,8 +134,34 @@ export const JWTProvider = ({ children }) => {
     dispatch({ type: LOGOUT });
   };
 
-  const resetPassword = async (email) => {
-    console.log('email - ', email);
+  const forgotPassword = async (email) => {
+    try {
+      const response = await axios.post('/forgot-password', { email });
+      return {
+        success: response.data.success,
+        message: response.data.message || 'Correo enviado correctamente'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error?.response?.data?.message || 'No se pudo enviar el correo'
+      };
+    }
+  };
+
+  const resetPassword = async (token, password) => {
+    try {
+      const response = await axios.post('/reset-password', { token, password });
+      return {
+        success: true,
+        message: response.data.message || 'Contraseña restablecida correctamente.'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error?.response?.data?.message || 'No se pudo restablecer la contraseña'
+      };
+    }
   };
 
   const updateProfile = () => {};
@@ -136,7 +170,7 @@ export const JWTProvider = ({ children }) => {
     return <Loader />;
   }
 
-  return <JWTContext value={{ ...state, login, logout, register, resetPassword, updateProfile }}>{children}</JWTContext>;
+  return <JWTContext value={{ ...state, login, logout, register, forgotPassword, resetPassword, updateProfile }}>{children}</JWTContext>;
 };
 
 export default JWTContext;

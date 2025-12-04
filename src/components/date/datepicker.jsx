@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { TextField } from '@mui/material';
+import { TextField, InputLabel } from '@mui/material';
+import { Stack } from '@mui/system';
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -27,16 +28,18 @@ export default function DatePicker({ value, onChange, error = false, helperText 
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-      <TextField
-        fullWidth
-        readOnly
-        value={date ? date.format('DD/MM/YYYY') : ''}
-        onClick={() => setOpenDate(true)}
-        autoComplete="off"
-        error={error}
-        label={label || 'Fecha'}
-        helperText={helperText}
-      />
+      <Stack spacing={1}>
+        <InputLabel>{label || 'Fecha'}</InputLabel>
+        <TextField
+          fullWidth
+          readOnly
+          value={date ? date.format('DD/MM/YYYY') : ''}
+          onClick={() => setOpenDate(true)}
+          autoComplete="off"
+          error={error}
+          helperText={helperText}
+        />
+      </Stack>
 
       <MobileDatePicker
         open={openDate}

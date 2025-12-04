@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'utils/axios';
 
 // material-ui
 import Button from '@mui/material/Button';
@@ -28,13 +29,15 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 // assets
 import { Eye, EyeSlash } from 'iconsax-reactjs';
 
-// ============================|| FIREBASE - RESET PASSWORD ||============================ //
+// ============================|| RESET PASSWORD ||============================ //
 
 export default function AuthResetPassword() {
   const scriptedRef = useScriptRef();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
 
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, resetPassword } = useAuth();
 
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
@@ -64,31 +67,31 @@ export default function AuthResetPassword() {
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          password: Yup.string().max(255).required('Password is required'),
+          password: Yup.string().max(255).required('La contraseña es obligatoria'),
           confirmPassword: Yup.string()
-            .required('Confirm Password is required')
-            .test('confirmPassword', 'Both Password must be match!', (confirmPassword, yup) => yup.parent.password === confirmPassword)
+            .required('Debes confirmar la contraseña')
+            .test('confirmPassword', 'Las contraseñas no coinciden', (confirmPassword, yup) => yup.parent.password === confirmPassword)
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
-            // password reset
             if (scriptedRef.current) {
               setStatus({ success: true });
               setSubmitting(false);
 
+              const response = await resetPassword(token, values.password);
+
               openSnackbar({
                 open: true,
-                message: 'Successfuly reset password.',
+                message: response.message || 'Contraseña restablecida correctamente.',
                 variant: 'alert',
-
-                alert: {
-                  color: 'success'
-                }
+                alert: { color: 'success', variant: 'outlined' },
+                anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                close: true
               });
 
               setTimeout(() => {
                 navigate(isLoggedIn ? '/auth/login' : '/login', { replace: true });
-              }, 1500);
+              }, 2500);
             }
           } catch (err) {
             console.error(err);
@@ -105,7 +108,7 @@ export default function AuthResetPassword() {
             <Grid container spacing={3}>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="password-reset">Password</InputLabel>
+                  <InputLabel htmlFor="password-reset">Nueva contraseña</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.password && errors.password)}
@@ -118,6 +121,7 @@ export default function AuthResetPassword() {
                       handleChange(e);
                       changePassword(e.target.value);
                     }}
+                    autoComplete="off"
                     endAdornment={
                       <InputAdornment position="end">
                         <IconButton
@@ -131,14 +135,26 @@ export default function AuthResetPassword() {
                         </IconButton>
                       </InputAdornment>
                     }
-                    placeholder="Enter password"
+                    placeholder="Ingresa tu nueva contraseña"
                   />
                 </Stack>
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Para que tu contraseña sea fuerte, debe tener:
+                  </Typography>
+                  <ul style={{ margin: '4px 0 0 16px', padding: 0, fontSize: '0.75rem', color: '#666' }}>
+                    <li>8 caracteres como mínimo</li>
+                    <li>Mayúsculas y minúsculas</li>
+                    <li>Al menos un número</li>
+                    <li>Al menos un símbolo (!@#$%...)</li>
+                  </ul>
+                </Box>
                 {touched.password && errors.password && (
                   <FormHelperText error id="helper-text-password-reset">
                     {errors.password}
                   </FormHelperText>
                 )}
+
                 <FormControl fullWidth sx={{ mt: 2 }}>
                   <Grid container spacing={2} sx={{ alignItems: 'center' }}>
                     <Grid>
@@ -152,9 +168,10 @@ export default function AuthResetPassword() {
                   </Grid>
                 </FormControl>
               </Grid>
+
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="confirm-password-reset">Confirm Password</InputLabel>
+                  <InputLabel htmlFor="confirm-password-reset">Confirmar contraseña</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.confirmPassword && errors.confirmPassword)}
@@ -164,7 +181,8 @@ export default function AuthResetPassword() {
                     name="confirmPassword"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter confirm password"
+                    placeholder="Repite la contraseña"
+                    autoComplete="off"
                   />
                 </Stack>
                 {touched.confirmPassword && errors.confirmPassword && (
@@ -179,10 +197,11 @@ export default function AuthResetPassword() {
                   <FormHelperText error>{errors.submit}</FormHelperText>
                 </Grid>
               )}
+
               <Grid size={12}>
                 <AnimateButton>
                   <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                    Reset Password
+                    Restablecer contraseña
                   </Button>
                 </AnimateButton>
               </Grid>

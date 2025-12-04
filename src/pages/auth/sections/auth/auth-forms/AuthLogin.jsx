@@ -27,9 +27,10 @@ import IconButton from 'components/@extended/IconButton';
 import useAuth from 'hooks/useAuth';
 import useScriptRef from 'hooks/useScriptRef';
 import { fetcher } from 'utils/axios';
+import { openSnackbar } from 'api/snackbar';
 
 // assets
-import { Eye, EyeSlash } from 'iconsax-reactjs';
+import { Eye, EyeSlash, CloseCircle } from 'iconsax-reactjs';
 
 // ============================|| JWT - LOGIN ||============================ //
 
@@ -63,10 +64,22 @@ export default function AuthLogin({ forgot }) {
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
             const trimmedUser = values.user.trim();
-            await login(trimmedUser, values.password);
+            const response = await login(trimmedUser, values.password);
             if (scriptedRef.current) {
               setStatus({ success: true });
               setSubmitting(false);
+
+              if (!response.success) {
+                // <-- ahora muestra error SOLO si falla
+                openSnackbar({
+                  open: true,
+                  message: response.message,
+                  variant: 'alert',
+                  alert: { color: 'error', variant: 'outlined'},
+                  anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                  close: true
+                });
+              }
             }
           } catch (err) {
             console.error(err);
@@ -94,7 +107,7 @@ export default function AuthLogin({ forgot }) {
                     fullWidth
                     error={Boolean(touched.user && errors.user)}
                     inputProps={{ autoComplete: 'new-password' }}
-                    placeholder="Ej: jbravo"
+                    placeholder="Ingrese su usuario"
                     autoComplete="off"
                   />
                 </Stack>
@@ -116,6 +129,7 @@ export default function AuthLogin({ forgot }) {
                     name="password"
                     onBlur={handleBlur}
                     onChange={handleChange}
+                    placeholder="Ingrese su contraseña"
                     endAdornment={
                       <InputAdornment position="end">
                         <IconButton

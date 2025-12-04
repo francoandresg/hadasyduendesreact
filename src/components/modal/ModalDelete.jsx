@@ -25,8 +25,8 @@ function ModalDelete({ open, onClose, onConfirm, fila, entity }) {
 
       <Divider />
       <DialogActions>
-        <Button onClick={onClose} color='inherit'>Cancelar</Button>
-        <Button variant="contained" color='error' onClick={onConfirm}>
+        <Button onClick={onClose} color='inherit' variant="text">Cancelar</Button>
+        <Button variant="text" color='error' onClick={onConfirm}>
           Confirmar
         </Button>
       </DialogActions>

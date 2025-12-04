@@ -8,6 +8,7 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { Link } from 'react-router-dom';
 
 // third-party
 import { Formik } from 'formik';
@@ -25,7 +26,7 @@ export default function AuthForgotPassword() {
   const scriptedRef = useScriptRef();
   const navigate = useNavigate();
 
-  const { isLoggedIn, resetPassword } = useAuth();
+  const { isLoggedIn, forgotPassword } = useAuth();
 
   return (
     <>
@@ -35,43 +36,49 @@ export default function AuthForgotPassword() {
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required')
+          email: Yup.string().email('Debe ser un correo válido').max(255).required('Correo es requerido')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
-            await resetPassword(values.email).then(
-              () => {
-                setStatus({ success: true });
-                setSubmitting(false);
-                openSnackbar({
-                  open: true,
-                  message: 'Check mail for reset password link',
-                  variant: 'alert',
+            const response = await forgotPassword(values.email);
 
-                  alert: {
-                    color: 'success'
-                  }
-                });
-                setTimeout(() => {
-                  navigate(isLoggedIn ? '/auth/check-mail' : '/check-mail', { replace: true });
-                }, 1500);
+            if (!scriptedRef.current) return;
 
-                // WARNING: do not set any formik state here as formik might be already destroyed here. You may get following error by doing so.
-                // Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application.
-                // To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
-                // github issue: https://github.com/formium/formik/issues/2430
-              },
-              (err) => {
-                setStatus({ success: false });
-                setErrors({ submit: err.message });
-                setSubmitting(false);
-              }
-            );
+            setStatus({ success: response.success });
+
+            if (response.success) {
+              openSnackbar({
+                open: true,
+                message: response.message || 'Correo enviado correctamente. Por favor, revisa tu bandeja de entrada.',
+                variant: 'alert',
+                alert: { color: 'success', variant: 'outlined' },
+                anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                close: true
+              });
+
+              setTimeout(() => {
+                navigate(isLoggedIn ? '/auth/check-mail' : '/check-mail', { replace: true });
+              }, 2500);
+            } else {
+              openSnackbar({
+                open: true,
+                message: response.message || 'El correo no se encuentra registrado.',
+                variant: 'alert',
+                alert: { color: 'error', variant: 'outlined' },
+                anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                close: true
+              });
+            }
           } catch (err) {
             console.error(err);
+
+            if (!scriptedRef.current) return;
+
+            setStatus({ success: false });
+            setErrors({ submit: err.message });
+          } finally {
+            // Solo aquí, así no lo duplicas
             if (scriptedRef.current) {
-              setStatus({ success: false });
-              setErrors({ submit: err.message });
               setSubmitting(false);
             }
           }
@@ -82,7 +89,7 @@ export default function AuthForgotPassword() {
             <Grid container spacing={3}>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="email-forgot">Email Address</InputLabel>
+                  <InputLabel htmlFor="email-forgot">Correo</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.email && errors.email)}
@@ -92,7 +99,7 @@ export default function AuthForgotPassword() {
                     name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter email address"
+                    placeholder="Ingrese su correo electrónico"
                   />
                 </Stack>
                 {touched.email && errors.email && (
@@ -107,12 +114,31 @@ export default function AuthForgotPassword() {
                 </Grid>
               )}
               <Grid sx={{ mb: -2 }} size={12}>
-                <Typography variant="caption">Do not forgot to check SPAM box.</Typography>
+                <Stack direction="row" spacing={1} alignItems="center" justifyContent="end">
+                  <Typography
+                    component={Link}
+                    to={isLoggedIn ? '/auth/login' : '/login'}
+                    variant="body1"
+                    sx={{ textDecoration: 'none' }}
+                    color="primary"
+                  >
+                    Volver al inicio de sesión
+                  </Typography>
+                </Stack>
               </Grid>
               <Grid size={12}>
                 <AnimateButton>
-                  <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                    Send Password Reset Email
+                  <Button
+                    disableElevation
+                    disabled={isSubmitting}
+                    fullWidth
+                    size="large"
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Enviar correo de recuperación
                   </Button>
                 </AnimateButton>
               </Grid>

@@ -12,11 +12,14 @@ import {
   Switch,
   Divider,
   Autocomplete,
-  Grid
+  Grid,
+  Stack,
+  InputLabel
 } from '@mui/material';
 
 import { openSnackbar } from 'utils/snackbar';
 import ConfirmDialog from '../dialog/ConfirmDialog';
+import DatePicker from '../date/datepicker';
 
 const ModalEdit = ({ open, onClose, onSave, columns = [], entity, entityConfirm, modalGrid = 'md', data = {} }) => {
   const [form, setForm] = useState({});
@@ -167,9 +170,9 @@ const ModalEdit = ({ open, onClose, onSave, columns = [], entity, entityConfirm,
 
   // -------------------- RENDER FIELD ------------------------
   const renderField = (col) => {
-    const { accessorKey, label, header, type, options, visible, size, valueType } = col;
+    const { accessorKey, label, header, type, options, visible, visibleColumn, size, valueType } = col;
 
-    if (visible == 0) return null;
+    if (visible == 0 && visibleColumn == 1) return null;
 
     const fieldValue = form[accessorKey] ?? '';
     const gridSize = size || { xs: 12 };
@@ -182,29 +185,39 @@ const ModalEdit = ({ open, onClose, onSave, columns = [], entity, entityConfirm,
             case 'autocomplete':
             case 'select':
               return (
-                <Autocomplete
-                  value={
-                    options.find((opt) => (valueType === 'label' ? opt.label === form[accessorKey] : opt.id === form[accessorKey])) || null
-                  }
-                  onChange={(_, val) => {
-                    if (!val) {
-                      handleChange({ target: { name: accessorKey, value: '', type: 'text' } });
-                      return;
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <Autocomplete
+                    value={
+                      options.find((opt) => (valueType === 'label' ? opt.name === form[accessorKey] : opt.id === form[accessorKey])) ||
+                      null
                     }
-                    handleChange({
-                      target: {
-                        name: accessorKey,
-                        value: valueType === 'label' ? val.label : val.id,
-                        type: 'text'
+                    onChange={(_, val) => {
+                      if (!val) {
+                        handleChange({ target: { name: accessorKey, value: '', type: 'text' } });
+                        return;
                       }
-                    });
-                  }}
-                  options={options}
-                  getOptionLabel={(o) => o.label || ''}
-                  renderInput={(params) => (
-                    <TextField {...params} label={label} fullWidth error={!!errors[accessorKey]} helperText={errors[accessorKey]} />
-                  )}
-                />
+                      handleChange({
+                        target: {
+                          name: accessorKey,
+                          value: valueType === 'label' ? val.name : val.id,
+                          type: 'text'
+                        }
+                      });
+                    }}
+                    options={options}
+                    getOptionLabel={(o) => o.name || ''}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        sx={{ '& .MuiInputBase-root': { height: 48.13 } }}
+                        error={!!errors[accessorKey]}
+                        helperText={errors[accessorKey]}
+                      />
+                    )}
+                  />
+                </Stack>
               );
 
             case 'boolean':
@@ -225,37 +238,34 @@ const ModalEdit = ({ open, onClose, onSave, columns = [], entity, entityConfirm,
                       name={accessorKey}
                     />
                   }
-                  label={label}
                 />
               );
 
             case 'date':
               return (
-                <TextField
-                  label={label}
-                  name={accessorKey}
-                  type="date"
-                  value={fieldValue}
-                  onChange={handleChange}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
+                <DatePicker
+                  value={fieldValue || null}
+                  onChange={(v) => handleChange({ target: { name: accessorKey, value: v, type: 'text' } })}
                   error={!!errors[accessorKey]}
                   helperText={errors[accessorKey]}
+                  label={label}
                 />
               );
 
             case 'color':
               return (
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <TextField
-                    label={label}
-                    name={accessorKey}
-                    value={fieldValue || '#000000'}
-                    onChange={handleChange}
-                    fullWidth
-                    error={!!errors[accessorKey]}
-                    helperText={errors[accessorKey]}
-                  />
+                  <Stack spacing={1}>
+                    <InputLabel>{label}</InputLabel>
+                    <TextField
+                      name={accessorKey}
+                      value={fieldValue || '#000000'}
+                      onChange={handleChange}
+                      fullWidth
+                      error={!!errors[accessorKey]}
+                      helperText={errors[accessorKey]}
+                    />
+                  </Stack>
                   <input
                     type="color"
                     name={accessorKey}
@@ -274,30 +284,34 @@ const ModalEdit = ({ open, onClose, onSave, columns = [], entity, entityConfirm,
 
             case 'textarea':
               return (
-                <TextField
-                  label={label}
-                  name={accessorKey}
-                  value={fieldValue}
-                  onChange={handleChange}
-                  fullWidth
-                  multiline
-                  minRows={4}
-                  error={!!errors[accessorKey]}
-                  helperText={errors[accessorKey]}
-                />
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <TextField
+                    name={accessorKey}
+                    value={fieldValue}
+                    onChange={handleChange}
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    error={!!errors[accessorKey]}
+                    helperText={errors[accessorKey]}
+                  />
+                </Stack>
               );
 
             default:
               return (
-                <TextField
-                  label={label}
-                  name={accessorKey}
-                  value={fieldValue}
-                  onChange={handleChange}
-                  fullWidth
-                  error={!!errors[accessorKey]}
-                  helperText={errors[accessorKey]}
-                />
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <TextField
+                    name={accessorKey}
+                    value={fieldValue}
+                    onChange={handleChange}
+                    fullWidth
+                    error={!!errors[accessorKey]}
+                    helperText={errors[accessorKey]}
+                  />
+                </Stack>
               );
           }
         })()}
@@ -332,8 +346,10 @@ const ModalEdit = ({ open, onClose, onSave, columns = [], entity, entityConfirm,
         <Divider />
 
         <DialogActions>
-          <Button onClick={onClose} color='inherit'>Cancelar</Button>
-          <Button variant="contained" color='warning' sx={{color:'white'}} onClick={handleSubmit}>
+          <Button onClick={onClose} color="inherit" variant="text">
+            Cancelar
+          </Button>
+          <Button variant="text" color="warning" onClick={handleSubmit}>
             Guardar
           </Button>
         </DialogActions>

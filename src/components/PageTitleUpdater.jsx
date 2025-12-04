@@ -12,6 +12,9 @@ const PageTitleUpdater = () => {
   const routeTitles = useMemo(() => {
     const staticTitles = {
       '/login': 'Inicio Sesión',
+      '/forgot-password': 'Olvidé mi Contraseña',
+      '/reset-password': 'Restablecer Contraseña',
+      '/check-mail': 'Revisa tu Correo',
       '/dashboard': 'Dashboard',
       '/managers/appointments': 'Citas',
       '/managers/material-delivery': 'Material Entregado',
@@ -22,7 +25,7 @@ const PageTitleUpdater = () => {
       '/maintainers/clients': 'Clientes',
       '/maintainers/services-type': 'Tipos de Servicio',
       '/maintainers/users': 'Usuarios',
-      '/settings': 'Configuración'
+      '/settings': 'Configuración',
     };
 
     // Las rutas estáticas sobrescriben las dinámicas si hay conflicto

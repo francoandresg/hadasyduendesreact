@@ -1,9 +1,9 @@
 import React from 'react';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Divider } from '@mui/material';
 
-function ModalState({ open, onClose, onConfirm, fila, entity, estado }) {
+function ModalState({ open, onClose, onConfirm, fila, entity, state }) {
   // Construir mensaje y título dinámicos según el estado
-  const isActivar = estado === 0 || estado === 2; // 0 o 2 = desactivado → próxima acción = activar
+  const isActivar = state === 0 || state === 2; // 0 o 2 = desactivado → próxima acción = activar
   const actionText = isActivar ? 'activar' : 'desactivar';
   const title = isActivar ? 'Confirmar activación' : 'Confirmar desactivación';
   const message = `¿Estás seguro de que deseas ${actionText} ${entity}: ${fila}?`;
@@ -30,8 +30,8 @@ function ModalState({ open, onClose, onConfirm, fila, entity, estado }) {
       <Divider />
 
       <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
-        <Button variant="contained" onClick={onConfirm}>
+        <Button onClick={onClose} variant='text' color='inherit'>Cancelar</Button>
+        <Button variant="text" color={isActivar ? 'success' : 'error'} onClick={onConfirm}>
           Confirmar
         </Button>
       </DialogActions>

@@ -12,7 +12,9 @@ import {
   Switch,
   Divider,
   Autocomplete,
-  Grid
+  Grid,
+  Stack,
+  InputLabel
 } from '@mui/material';
 import { openSnackbar } from 'utils/snackbar';
 import ConfirmDialog from '../dialog/ConfirmDialog';
@@ -147,49 +149,63 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
             case 'autocomplete':
             case 'select':
               return (
-                <Autocomplete
-                  value={
-                    options.find((opt) => (valueType === 'label' ? opt.name === form[accessorKey] : opt.id === form[accessorKey])) || null
-                  }
-                  onChange={(_, val) => {
-                    if (!val) {
-                      handleChange({ target: { name: accessorKey, value: '', type: 'text' } });
-                      return;
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <Autocomplete
+                    value={
+                      options.find((opt) => (valueType === 'label' ? opt.name === form[accessorKey] : opt.id === form[accessorKey])) || null
                     }
-                    const newValue = valueType === 'label' ? val.name : val.id;
-                    handleChange({ target: { name: accessorKey, value: newValue, type: 'text' } });
-                  }}
-                  options={options}
-                  getOptionLabel={(o) => o.name || ''}
-                  renderInput={(params) => (
-                    <TextField {...params} label={label} fullWidth error={!!errors[accessorKey]} helperText={errors[accessorKey]} />
-                  )}
-                />
+                    onChange={(_, val) => {
+                      if (!val) {
+                        handleChange({ target: { name: accessorKey, value: '', type: 'text' } });
+                        return;
+                      }
+                      const newValue = valueType === 'label' ? val.name : val.id;
+                      handleChange({ target: { name: accessorKey, value: newValue, type: 'text' } });
+                    }}
+                    options={options}
+                    getOptionLabel={(o) => o.name || ''}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        sx={{ '& .MuiInputBase-root': { height: 48.13 } }}
+                        fullWidth
+                        error={!!errors[accessorKey]}
+                        helperText={errors[accessorKey]}
+                      />
+                    )}
+                  />
+                </Stack>
               );
 
             // ---------------- BOOLEAN ----------------
             case 'boolean':
               return (
-                <FormControlLabel
-                  control={<Checkbox checked={!!form[accessorKey]} onChange={handleChange} name={accessorKey} />}
-                  label={header}
-                />
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <FormControlLabel
+                    control={<Checkbox checked={!!form[accessorKey]} onChange={handleChange} name={accessorKey} />}
+                    label={header}
+                  />
+                </Stack>
               );
 
             // ---------------- SWITCH ----------------
             case 'switch':
               return (
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={!!form[accessorKey]}
-                      onChange={(e) => setForm((prev) => ({ ...prev, [accessorKey]: e.target.checked }))}
-                      name={accessorKey}
-                      color="primary"
-                    />
-                  }
-                  label={label}
-                />
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={!!form[accessorKey]}
+                        onChange={(e) => setForm((prev) => ({ ...prev, [accessorKey]: e.target.checked }))}
+                        name={accessorKey}
+                        color="primary"
+                      />
+                    }
+                  />
+                </Stack>
               );
 
             // ---------------- DATE ----------------
@@ -208,8 +224,8 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
             case 'color':
               return (
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <InputLabel>{label}</InputLabel>
                   <TextField
-                    label={label}
                     name={accessorKey}
                     value={form[accessorKey] || '#000000'}
                     onChange={handleChange}
@@ -236,31 +252,35 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
             // ---------------- TEXTAREA ----------------
             case 'textarea':
               return (
-                <TextField
-                  label={label}
-                  name={accessorKey}
-                  value={fieldValue}
-                  onChange={handleChange}
-                  fullWidth
-                  multiline
-                  minRows={4}
-                  error={!!errors[accessorKey]}
-                  helperText={errors[accessorKey]}
-                />
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <TextField
+                    name={accessorKey}
+                    value={fieldValue}
+                    onChange={handleChange}
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    error={!!errors[accessorKey]}
+                    helperText={errors[accessorKey]}
+                  />
+                </Stack>
               );
 
             // ---------------- DEFAULT INPUT ----------------
             default:
               return (
-                <TextField
-                  label={label}
-                  name={accessorKey}
-                  value={fieldValue}
-                  onChange={handleChange}
-                  fullWidth
-                  error={!!errors[accessorKey]}
-                  helperText={errors[accessorKey]}
-                />
+                <Stack spacing={1}>
+                  <InputLabel>{label}</InputLabel>
+                  <TextField
+                    name={accessorKey}
+                    value={fieldValue}
+                    onChange={handleChange}
+                    fullWidth
+                    error={!!errors[accessorKey]}
+                    helperText={errors[accessorKey]}
+                  />
+                </Stack>
               );
           }
         })()}
@@ -297,8 +317,10 @@ const ModalAdd = ({ open, onClose, onSave, columns = [], entity, entityConfirm, 
         <Divider />
 
         <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
-          <Button variant="contained" onClick={handleSubmit}>
+          <Button onClick={onClose} color="secondary" variant="text">
+            Cancelar
+          </Button>
+          <Button variant="text" onClick={handleSubmit}>
             Guardar
           </Button>
         </DialogActions>
