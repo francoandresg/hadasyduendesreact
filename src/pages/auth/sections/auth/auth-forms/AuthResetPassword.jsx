@@ -84,7 +84,10 @@ export default function AuthResetPassword() {
                 open: true,
                 message: response.message || 'Contraseña restablecida correctamente.',
                 variant: 'alert',
-                alert: { color: 'success', variant: 'outlined' },
+                alert: { 
+                  color: response.success ? 'success' : 'error', 
+                  variant: 'outlined' 
+                },
                 anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
                 close: true
               });

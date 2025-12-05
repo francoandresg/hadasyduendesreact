@@ -19,7 +19,7 @@ export default function Login2() {
 
   return (
     <AuthWrapper2>
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         <Grid sx={{ textAlign: 'center' }} size={12}>
           <Logo />
         </Grid>

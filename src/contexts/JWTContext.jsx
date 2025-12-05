@@ -153,7 +153,7 @@ export const JWTProvider = ({ children }) => {
     try {
       const response = await axios.post('/reset-password', { token, password });
       return {
-        success: true,
+        success: response.data.success,
         message: response.data.message || 'Contraseña restablecida correctamente.'
       };
     } catch (error) {
